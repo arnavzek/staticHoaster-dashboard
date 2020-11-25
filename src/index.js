@@ -3,9 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import U from "./uponJS/main.js";
 
-U.settings({ name: "react-test", local: true });
 // win
 ReactDOM.render(
   <React.StrictMode>

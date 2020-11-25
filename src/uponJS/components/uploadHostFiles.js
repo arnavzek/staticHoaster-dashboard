@@ -98,7 +98,7 @@ class uploadHostFiles extends LitElement {
 
   async uploadHostFiles(file, fileName) {
     //if folder is selected then add directory
-    return await U.utility.upload(file, "hostingUpload", fileName); //upload and get the new link, newAttributes.href so that it can be overridden
+    return await window.U.utility.upload(file, "hostingUpload", fileName); //upload and get the new link, newAttributes.href so that it can be overridden
   }
 
   returnItems() {
@@ -193,7 +193,7 @@ class uploadHostFiles extends LitElement {
             style="    
               font-weight: 900;
               color: #000;"
-            href="${U.info.serverUrl}"
+            href="${window.U.info.serverUrl}"
             target="_blank"
           >
             Visit App

@@ -263,7 +263,7 @@ let U = new (class {
 
     let checkDevIsLoggedIn = () => {
       if (!localStorage.getItem("dev-cookie")) {
-        return this.login("DEVELOPER").then(() => {
+        return this.login("developer").then(() => {
           this.promptUploadHostFiles();
         });
       } else {
@@ -425,7 +425,7 @@ let U = new (class {
   }
   openAdminPanel() {
     if (!localStorage.getItem("dev-cookie"))
-      return U.login("DEVELOPER").then(U.openAdminPanel);
+      return U.login("developer").then(U.openAdminPanel);
 
     return U.ask([
       { h3: " ⚙️ Settings" },
@@ -518,29 +518,29 @@ let U = new (class {
 
     return cronLog;
   };
-  readUser = (field) => {
+  readUser = (type) => {
     return new Promise((resolve) => {
       if (!this.getUserCookie()) return resolve();
+      if (!type) type = "user";
+      if (type == "developer")
+        if (localStorage.getItem(type)) {
+          let whole = JSON.parse(localStorage.getItem(type));
+          return resolve(whole);
+        } else {
+          //if someone tampers with localStorage
+          this.query("$" + type).then(function (whole) {
+            if (!whole) {
+              console.warn(" cookie invalid");
+              return resolve();
+            }
 
-      if (localStorage.getItem("user")) {
-        let whole = JSON.parse(localStorage.getItem("user"));
-        if (!field) return resolve(whole);
-        return resolve(whole[field]);
-      } else {
-        //if someone tampers with localStorage
-        this.query("$user").then(function (whole) {
-          if (!whole) {
-            console.warn(" cookie invalid");
-            return resolve();
-          }
+            if (whole.error) throw whole.error; //we dont send data
 
-          if (whole.error) throw whole.error; //we dont send data
+            localStorage.setItem(type, JSON.stringify(whole));
 
-          localStorage.setItem("user", JSON.stringify(whole));
-          if (!field) return resolve(whole);
-          return resolve(whole[field]);
-        });
-      }
+            return resolve(whole);
+          });
+        }
     });
   };
   fromPhone() {
@@ -579,7 +579,7 @@ let U = new (class {
       let devLogin = false;
 
       let title = "Login to continue";
-      if (loginFor === "DEVELOPER") {
+      if (loginFor === "developer") {
         title = "👨‍💻 Developer Login";
         devLogin = true;
       }
@@ -589,7 +589,7 @@ let U = new (class {
       let prompt = this.ask([
         { h3: title },
         {
-          p: "It will be used to iddentify author of the app",
+          p: "It will be used to identify author of the app",
         },
         {
           button: {
@@ -671,6 +671,37 @@ let U = new (class {
   };
   loginWithUponDotOne = (devLogin) => {
     return new Promise((loginCompleted) => {
+      let processLogin = (event, cred) => {
+        let saying = this.say("just a second " + this.caps(cred.username));
+
+        this.post(
+          {
+            type: "loginOrSignup",
+            data: {
+              devLogin: devLogin,
+              newAccount: false,
+              username: cred.username.toLowerCase(),
+              password: cred.password,
+            },
+          },
+          (data) => {
+            saying.kill();
+
+            if (data.error) {
+              if (data.error === "account not verified")
+                return this.verifyEmail(cred.username, devLogin).then(resolve);
+            }
+
+            if (data.code === 200) {
+              loginPrompt.kill();
+              resolve(data);
+            } else {
+              this.say(data.error);
+            }
+          }
+        );
+      };
+
       let resolve = (data) => {
         this.processLoginResolve(data, devLogin, newSignUp);
         loginCompleted();
@@ -699,37 +730,6 @@ let U = new (class {
       //loading: meaning loading
 
       this.loginResolve = resolve;
-
-      function processLogin(event, cred) {
-        let saying = this.say("just a second " + this.capital(cred.username));
-
-        this.post(
-          {
-            type: "loginOrSignup",
-            data: {
-              devLogin: devLogin,
-              newAccount: false,
-              username: cred.username.toLowerCase(),
-              password: cred.password,
-            },
-          },
-          (data) => {
-            saying.kill();
-
-            if (data.error) {
-              if (data.error === "account not verified")
-                return this.verifyEmail(cred.username, devLogin).then(resolve);
-            }
-
-            if (data.code === 200) {
-              loginPrompt.kill();
-              resolve(data);
-            } else {
-              this.say(data.error);
-            }
-          }
-        );
-      }
 
       let elements = [
         { h2: "Login" },
@@ -1096,7 +1096,7 @@ let U = new (class {
 
 
               .promptUi {
-                background: #000000c2;
+                background: transparent;
                 padding: 4vh 31%;
                 padding-top: 5vh;
                 color: #000;
@@ -1326,25 +1326,20 @@ let U = new (class {
                 position:relative;
                 z-index:10000000;
                 padding: 2px 25px;
-                background-color: rgba(255, 255, 255, .9);
+                background-color: #fff;
               }
 
        
 
-              /* if backdrop support: very transparent and blurred */
-              @supports ((-webkit-backdrop-filter: blur(2em)) or (backdrop-filter: blur(2em))) {
-                #promptContainer{
-                  background-color: rgba(255, 255, 255, .7);
-                  -webkit-backdrop-filter: blur(10px);
-                  backdrop-filter: blur(10px);
-                }
-              }
+
 
               #closeOverlay{
                 
                 height: 100%;
                 width: 100%;
+                background: #000000c9;
                 left: 0;
+                backdrop-filter: blur(20px);
                 position: absolute;
                 top: 0;
               }

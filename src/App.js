@@ -1,12 +1,25 @@
 import "./App.css";
-import WelcomeBoad from "./components/WelcomeBoad";
-import Documentation from "./components/Documentation";
+import Home from "./screens/home";
+import Dashboard from "./screens/dashboard";
+import U from "./uponJS/main.js";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+
+U.settings({ name: "react-test", local: true });
+
 function App() {
   return (
-    <div className="App">
-      <WelcomeBoad />
-      <Documentation />
-    </div>
+    <Router>
+      <div className="App">
+        <Switch>
+          <Route path="/dashboard">
+            <Dashboard U={U} />
+          </Route>
+          <Route path="/">
+            <Home U={U} />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
 

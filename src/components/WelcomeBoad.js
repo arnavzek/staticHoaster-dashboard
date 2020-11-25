@@ -3,26 +3,8 @@ import logo from "../media/logo.svg";
 import grass from "../media/grass.svg";
 import styled from "styled-components";
 import theme from "../theme.js";
-
-let HeadRow = styled.div`
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 12px;
-  flex: 1;
-  display: flex;
-  margin: 25px;
-  @media (min-width: 768px) {
-    justify-content: flex-end;
-    gap: 45px;
-  }
-`;
-
-let HeadRowButton = styled.button`
-  border: none;
-  background: transparent;
-  font-weight: 900;
-  font-family: ${theme.fontFamily};
-`;
+import { Link } from "react-router-dom";
+import NavBar from "./navBar";
 
 let DocumentationJump = styled.div`
   flex-direction: row;
@@ -122,12 +104,7 @@ let Body = styled.div`
 function WelcomeBoard() {
   return (
     <Body className="welcomeBoard">
-      <HeadRow>
-        <HeadRowButton>About Us</HeadRowButton>
-        <HeadRowButton>Pricing</HeadRowButton>
-        <HeadRowButton>Store</HeadRowButton>
-        <HeadRowButton>Contact Us</HeadRowButton>
-      </HeadRow>
+      <NavBar />
 
       <MainContainer>
         <IntroContainer>
