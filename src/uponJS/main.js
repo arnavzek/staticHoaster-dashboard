@@ -1,11 +1,11 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
 let adminPanel = require("./components/adminPanel");
 let backendEditor = require("./components/backendEditor");
 let uploadHostFiles = require("./components/uploadHostFiles");
-
-let U = new (class {
-  constructor() {
+let overlayButtons = require("./components/overlayButtons");
+class uponJS {
+  constructor(name, disableOverLayButton) {
     this.info = {}; //to do differentiation
+
     this.configuration = {
       cron: { daily: [], weekly: [], monthly: [], quaterly: [], yearly: [] },
       fees: {},
@@ -26,7 +26,7 @@ let U = new (class {
     this.query = this.query.bind(this);
 
     this.socketFunctions = { query: {}, room: {} };
-
+    if (disableOverLayButton) this.configuration.disableOverLayButton = true;
     this.receivingStatus = false;
     this.loginCallback = null;
 
@@ -70,12 +70,21 @@ let U = new (class {
     this.info.host = "upon.one";
     this.info.port = 80;
 
-    if (document.querySelector("title")) {
-      this.configuration.name = document
-        .querySelector("title")
-        .innerHTML.split(" ")[0]
-        .toLowerCase();
+    if (!name)
+      if (document.querySelector("title")) {
+        this.configuration.name = document
+          .querySelector("title")
+          .innerHTML.split(" ")[0]
+          .toLowerCase();
+      }
+
+    if (name) this.configuration.name = name;
+    if (!global.uponJS_instance) {
+      global.uponJS_instance = {};
     }
+
+    if (this.configuration.name)
+      global.uponJS_instance[this.configuration.name] = this;
 
     if (
       window.location.origin.indexOf("upon.one") !== -1 ||
@@ -108,66 +117,22 @@ let U = new (class {
     }
   }
   showDevelopmentOptions = () => {
-    if (document.querySelector('link[type="image/x-icon"]')) {
-      this.configuration.logo = document
-        .querySelector('link[type="image/x-icon"]')
-        .getAttribute("href");
-    }
+    // if (document.querySelector('link[type="image/x-icon"]')) {
+    //   this.configuration.logo = document
+    //     .querySelector('link[type="image/x-icon"]')
+    //     .getAttribute("href");
+    // }
 
-    if (document.querySelector('meta[property="og:description"]')) {
-      this.configuration.description = document
-        .querySelector('meta[property="og:description"]')
-        .getAttribute("content");
-    }
+    // if (document.querySelector('meta[property="og:description"]')) {
+    //   this.configuration.description = document
+    //     .querySelector('meta[property="og:description"]')
+    //     .getAttribute("content");
+    // }
 
-    this.query({ $updateMetaData: this.configuration });
-
-    let U = this;
-    class overlayButtons extends LitElement {
-      constructor() {
-        super();
-      }
-
-      static get styles() {
-        return css`
-          div {
-            position: fixed;
-            z-index: 5000;
-            left: 30px;
-            bottom: 30px;
-          }
-
-          button {
-            cursor: pointer;
-            margin-right: 20px;
-            background: #fff;
-            padding: 10px 15px;
-            outline: none;
-            box-shadow: 5px 5px 1vw #00000040;
-            border: none;
-            border-radius: 5px;
-            font-family: calibri, roboto;
-            border-radius: 5px;
-          }
-        `;
-      }
-
-      render() {
-        return html`
-          <div>
-            <button @click=${U.host}>🐣 Publish</button>
-            <button @click=${U.openBackendEditor}>🧊 Write Backend</button>
-            <button @click=${U.openDocumentation}>💡 Learn</button>
-            <button @click=${U.openAdminPanel}>⚙️</button>
-          </div>
-        `;
-      }
-    }
-
-    customElements.define("overlay-buttons", overlayButtons);
-
+    // this.query({ $updateMetaData: this.configuration });
+    if (this.configuration.disableOverLayButton) return;
     let buttons = document.createElement("overlay-buttons");
-
+    buttons.setAttribute("appName", this.configuration.name);
     document.body.appendChild(buttons);
   };
   runCloudFunction = (functionName, arg) => {
@@ -218,9 +183,11 @@ let U = new (class {
       }
     })();
   };
-  settings(configuration) {
+  settings = (configuration) => {
     Object.assign(this.configuration, configuration ? configuration : {}); //transfer all variables of arg 1 into this.configuration
     this.configuration.name = this.configuration.name.toLowerCase();
+
+    global.uponJS_instance[this.configuration.name] = this;
 
     if (configuration.beta) {
       document.querySelector(
@@ -237,7 +204,7 @@ let U = new (class {
     }
 
     this.updateServerLink();
-  }
+  };
   updateServerLink = () => {
     let port = this.info.port === 80 ? "" : ":" + this.info.port;
     this.info.serverUrl =
@@ -300,7 +267,7 @@ let U = new (class {
     this.ask([
       { h3: "Backend Editor" },
       {
-        p: `<backend-editor> </upload-host-files>`,
+        p: `<backend-editor appName="${this.configuration.name}"> </upload-host-files>`,
       },
     ]);
   };
@@ -409,29 +376,27 @@ let U = new (class {
       });
     }
   };
-  loadComponent = async (componentName) => {
-    let msg = this.loading();
-    let url = "/components/" + componentName;
-    if (this.env !== "node") {
-      url = this.getSubAppUrl("lib") + url;
-    } else {
-      url = "." + url;
-    }
-    await import(url);
-    msg.kill();
+  getLogoLink = (link, appName) => {
+    if (!link) return "";
+    if (link.indexOf("http") !== -1) return link;
+    link = link.replace("./", "").replace("../", "");
+    if (link.substr(0, 1) == "/") link = link.slice(1, link.length);
+    return this.getSubAppUrl(appName) + "/" + link;
   };
   loadStylinator(componentName) {
     return (document.body.innerHTML += "<stylinator-bar> </stylinator-bar>");
   }
-  openAdminPanel() {
+  openAdminPanel = () => {
     if (!localStorage.getItem("dev-cookie"))
       return U.login("developer").then(U.openAdminPanel);
 
     return U.ask([
       { h3: " ⚙️ Settings" },
-      { p: "<admin-pannel> </admin-pannel>" },
+      {
+        p: `<admin-pannel appName="${this.configuration.name}"> </admin-pannel>`,
+      },
     ]); //dont't create it, just add it to dom
-  }
+  };
   print(data) {
     console.log(
       "%c" + data,
@@ -1764,7 +1729,9 @@ let U = new (class {
     let newFIle = await this.browserCompress(file, options);
     return newFIle;
   };
-})();
+}
 
+let U = new uponJS();
 global.U = U;
+global.uponJS = uponJS;
 export default U;

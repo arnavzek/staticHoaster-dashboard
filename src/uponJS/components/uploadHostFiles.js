@@ -1,4 +1,4 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { LitElement, html, css } from "lit-element";
 
 //load script
 
@@ -31,6 +31,10 @@ class uploadHostFiles extends LitElement {
         [fileName]: { file: file, uploadStatus: true },
       };
     });
+  }
+
+  firstUpdated() {
+    this.U = global.uponJS_instance[this.appName];
   }
 
   upload(event, fileName) {
@@ -96,10 +100,10 @@ class uploadHostFiles extends LitElement {
   // show uploading and uploaded status
   //get an svg we can add whereever we want
 
-  async uploadHostFiles(file, fileName) {
+  uploadHostFiles = async (file, fileName) => {
     //if folder is selected then add directory
-    return await window.U.utility.upload(file, "hostingUpload", fileName); //upload and get the new link, newAttributes.href so that it can be overridden
-  }
+    return await this.U.utility.upload(file, "hostingUpload", fileName); //upload and get the new link, newAttributes.href so that it can be overridden
+  };
 
   returnItems() {
     let toReturn = [];
@@ -143,6 +147,7 @@ class uploadHostFiles extends LitElement {
   }
 
   render() {
+    let U = global.uponJS_instance[this.appName];
     return html`
       <div>
         <div id="files">${this.returnItems()}</div>
@@ -193,7 +198,7 @@ class uploadHostFiles extends LitElement {
             style="    
               font-weight: 900;
               color: #000;"
-            href="${window.U.info.serverUrl}"
+            href="${U.info.serverUrl}"
             target="_blank"
           >
             Visit App

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/navBar";
-
+import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 
 let Button = styled.button`
@@ -51,14 +51,6 @@ function Dashboadrd(props) {
   const [user, setUser] = useState(null);
   const [apps, updateApps] = useState(null);
 
-  function getLogoLink(link, appName) {
-    if (!link) return "";
-    if (link.indexOf("http") !== -1) return link;
-    link = link.replace("./", "").replace("../", "");
-    if (link.substr(0, 1) == "/") link = link.slice(1, link.length);
-    return U.getSubAppUrl(appName) + "/" + link;
-  }
-
   useEffect(function () {
     U.readUser("developer").then((data) => {
       if (!data) return window.U.login("developer");
@@ -73,8 +65,10 @@ function Dashboadrd(props) {
     apps.map((app, index) => {
       appsRender.push(
         <Button key={index}>
-          <LogoImg image={getLogoLink(app.logo, app.name)} />
-          <Span>{app.name}</Span>
+          <Link to={"/dashboard/" + app.name}>
+            <LogoImg image={U.getLogoLink(app.logo, app.name)} />
+            <Span>{app.name}</Span>
+          </Link>
         </Button>
       );
     });

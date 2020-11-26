@@ -1,4 +1,4 @@
-let { LitElement, html, css, customElement, property } = require("lit-element");
+import { LitElement, html, css } from "lit-element";
 
 //load script
 
@@ -7,6 +7,7 @@ class adminPannel extends LitElement {
     return {
       title: String,
       dbData: Object,
+      appName: String,
       collections: Array,
       currentTab: String,
       errorMsg: String,
@@ -17,6 +18,7 @@ class adminPannel extends LitElement {
 
   constructor() {
     super();
+
     this.dbData = null;
     this.display = "block";
     this.showMessage = "Please Wait";
@@ -258,7 +260,9 @@ class adminPannel extends LitElement {
   }
 
   firstUpdated() {
-    window.window.U.query({ $readDBconfig: null }, true)
+    this.U = global.uponJS_instance[this.appName];
+
+    this.U.query({ $readDBconfig: null }, true)
       .then((apiData) => {
         if (!apiData) return (this.dbData = []);
 
@@ -272,6 +276,7 @@ class adminPannel extends LitElement {
   }
 
   render() {
+    let U = global.uponJS_instance[this.appName];
     if (this.errorMsg)
       return html`<div id="container" data-display="${this.display}">
         ${this.errorMsg}
@@ -286,27 +291,27 @@ class adminPannel extends LitElement {
             <div id='header'>
        
             <button @click="${() => {
-              window.U.openBackendEditor();
+              U.openBackendEditor();
             }}">Setup Backend </button>
               
               <button @click="${() => {
-                window.U.developerLogout();
+                U.developerLogout();
               }}">Logout as Developer </button>
 
               <button @click="${() => {
-                window.U.developerLogout();
+                U.developerLogout();
               }}">Logout as User </button>
 
               <button @click="${
-                window.U.promptUploadHostFiles
+                U.promptUploadHostFiles
               }">Upload secondary Files</button>
 
               <button @click="${() => {
-                window.U.changeProfilePicture("developer");
+                U.changeProfilePicture("developer");
               }}">Change Profile Picture</button>
             </div>
 
-            <console-logs></console-logs>
+            <console-logs appName="${this.appName}"></console-logs>
 
       
 
@@ -322,6 +327,7 @@ class consoleLogs extends LitElement {
   static get properties() {
     return {
       logs: Object,
+      appName: String,
     };
   }
 
@@ -332,7 +338,9 @@ class consoleLogs extends LitElement {
   }
 
   refresh() {
-    window.U.query({ $readLogs: 10 }, true)
+    let U = global.uponJS_instance[this.appName];
+
+    U.query({ $readLogs: 10 }, true)
       .then((data) => {
         this.logs = data;
       })

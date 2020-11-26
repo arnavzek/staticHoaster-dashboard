@@ -1,4 +1,4 @@
-import { LitElement, html, css, customElement, property } from "lit-element";
+import { LitElement, html, css } from "lit-element";
 
 //load script
 
@@ -6,6 +6,7 @@ class backendEditor extends LitElement {
   static get properties() {
     return {
       backendCode: String,
+      appName: String,
       loading: Boolean,
     };
   }
@@ -14,8 +15,11 @@ class backendEditor extends LitElement {
     super();
 
     this.updatebackendCode = this.updatebackendCode.bind(this);
-    console.log(window.U.configuration.backendCode);
-    this.backendCode = window.U.configuration.backendCode;
+  }
+
+  firstUpdated() {
+    let U = global.uponJS_instance[this.appName];
+    this.backendCode = U.configuration.backendCode;
   }
 
   static get styles() {
@@ -27,7 +31,7 @@ class backendEditor extends LitElement {
         resize: none;
         box-sizing: border-box;
         height: 60vh;
-        bornder: none;
+        border: none;
         margin: 30px 0;
         outline: none;
         padding: 20px;
@@ -50,14 +54,15 @@ class backendEditor extends LitElement {
   }
 
   configureVariables() {
-    if (window.U.db) transformTypes(window.U.db);
+    let U = global.uponJS_instance[this.appName];
+    if (U.db) transformTypes(U.db);
 
-    window.U.configuration.db = window.U.db;
-    window.U.configuration.cloudFunctions = window.U.cloudFunctions;
-    window.U.configuration.bucket = window.U.bucket;
+    U.configuration.db = U.db;
+    U.configuration.cloudFunctions = U.cloudFunctions;
+    U.configuration.bucket = U.bucket;
 
-    for (let key in window.U.cloudFunctions) {
-      window.U.cloudFunctions[key] = window.U.cloudFunctions[key].toString();
+    for (let key in U.cloudFunctions) {
+      U.cloudFunctions[key] = U.cloudFunctions[key].toString();
     }
 
     function transformTypes(obj) {
@@ -97,15 +102,16 @@ class backendEditor extends LitElement {
   }
 
   saveBackendCode({ target }) {
-    window.U.configuration.backendCode = this.backendCode;
+    let U = global.uponJS_instance[this.appName];
+    U.configuration.backendCode = this.backendCode;
     let script = document.createElement("script");
     script.innerHTML = this.backendCode;
     document.body.appendChild(script);
-    let loading = window.U.loading("Updating Backend");
+    let loading = U.loading("Updating Backend");
     this.configureVariables();
-    window.U.query({ $hostBackend: window.U.configuration }).then(() => {
+    U.query({ $hostBackend: U.configuration }).then(() => {
       loading.kill();
-      window.U.say("Backend Updated 😊");
+      U.say("Backend Updated 😊");
     });
   }
 
