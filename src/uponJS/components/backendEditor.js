@@ -18,8 +18,8 @@ class backendEditor extends LitElement {
   }
 
   firstUpdated() {
-    let U = global.uponJS_instance[this.appName];
-    this.backendCode = U.configuration.backendCode;
+    this.U = global.uponJS_instance[this.appName];
+    this.backendCode = this.U.configuration.backendCode;
   }
 
   static get styles() {
@@ -30,6 +30,7 @@ class backendEditor extends LitElement {
         background: #fff;
         resize: none;
         box-sizing: border-box;
+        background-color: rgb(0 0 0 / 8%);
         height: 60vh;
         border: none;
         margin: 30px 0;
@@ -53,62 +54,12 @@ class backendEditor extends LitElement {
     console.log(this.backendCode);
   }
 
-  configureVariables() {
-    let U = global.uponJS_instance[this.appName];
-    if (U.db) transformTypes(U.db);
-
-    U.configuration.db = U.db;
-    U.configuration.cloudFunctions = U.cloudFunctions;
-    U.configuration.bucket = U.bucket;
-
-    for (let key in U.cloudFunctions) {
-      U.cloudFunctions[key] = U.cloudFunctions[key].toString();
-    }
-
-    function transformTypes(obj) {
-      let blackListFunctions = [String, Number, Array, Object, Date, Object];
-
-      for (let key in obj) {
-        if (typeof obj[key] === "object") {
-          transformTypes(obj[key]);
-          continue;
-        } else if (typeof obj[key] === "function") {
-          if (blackListFunctions.includes(obj[key]) == false)
-            obj[key] = { $executeJS: { code: obj[key].toString() } };
-        }
-
-        switch (obj[key]) {
-          case String:
-            obj[key] = "string";
-            break;
-          case Array:
-            obj[key] = "array";
-            break;
-          case Number:
-            obj[key] = "number";
-            break;
-          case Boolean:
-            obj[key] = "boolean";
-            break;
-          case Date:
-            obj[key] = "date";
-            break;
-          case Object:
-            obj[key] = "object";
-            break;
-        }
-      }
-    }
-  }
-
   saveBackendCode({ target }) {
     let U = global.uponJS_instance[this.appName];
     U.configuration.backendCode = this.backendCode;
-    let script = document.createElement("script");
-    script.innerHTML = this.backendCode;
-    document.body.appendChild(script);
-    let loading = U.loading("Updating Backend");
-    this.configureVariables();
+
+    let loading = U.say("Updating Backend...");
+
     U.query({ $hostBackend: U.configuration }).then(() => {
       loading.kill();
       U.say("Backend Updated 😊");

@@ -21,6 +21,7 @@ let HeadRowButton = styled.button`
   background: transparent;
   text-decoration: none;
   font-weight: 900;
+  cursor: pointer;
   font-size: 15px;
   font-family: ${theme.fontFamily};
 `;
@@ -50,31 +51,30 @@ let LogoContainer = styled.div`
 let Div = styled.div`
   justify-content: space-between;
   display: flex;
-
+  padding: 10px;
   flex-direction: row;
 `;
 
 function NavBar(props) {
-  let icon = [];
-  if (props.showIcon)
-    icon.push(
+  let U = props.U;
+
+  return (
+    <Div>
       <Link key={1} to="/">
         <LogoContainer>
           <LogoImg src={logo} className="App-logo" alt="logo" />
           <LogoText> upon.one</LogoText>
         </LogoContainer>
       </Link>
-    );
-  return (
-    <Div>
-      {icon}
       <HeadRow>
-        <HeadRowButton key={2}>About Us</HeadRowButton>
-        <HeadRowButton key={3}>Pricing</HeadRowButton>
         <HeadRowButton key={4}>
           <Link to="/dashboard">Dashboard</Link>
         </HeadRowButton>
-        <HeadRowButton key={5}>Contact Us</HeadRowButton>
+        <HeadRowButton key={5}>
+          <a target="_blank" href="https://discord.gg/T6KsYPaQ">
+            Contact on Discord
+          </a>
+        </HeadRowButton>
       </HeadRow>
     </Div>
   );

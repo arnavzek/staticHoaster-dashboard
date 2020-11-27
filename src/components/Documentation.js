@@ -6,7 +6,6 @@ import theme from "../theme.js";
 let H1 = styled.h1`
   text-align: left;
 
-  color: #fff;
   font-family: ${theme.fontFamily};
   font-size: 35px;
   @media (min-width: 786px) {
@@ -15,8 +14,9 @@ let H1 = styled.h1`
 `;
 
 let Div = styled.div`
-  color: #fff;
-  font-weight: 100;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.5;
 `;
 
 let Body = styled.div`
@@ -29,8 +29,11 @@ let Body = styled.div`
   gap: 50px;
   flex-direction: column;
   font-family: ${theme.fontFamily};
-  background-color: #111;
-
+  background-color: #000;
+  padding: 55px 300px;
+  border: 6px solid;
+  background: transparent;
+  color: #000;
   @media (min-width: 786px) {
     padding: 55px 300px;
   }

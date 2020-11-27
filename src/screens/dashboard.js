@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import NavBar from "../components/navBar";
+
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
+import { useHistory } from "react-router-dom";
 
 let Button = styled.button`
   border: 1px;
@@ -33,21 +34,28 @@ let Span = styled.span`
 
 let LogoImg = styled.div`
   height: 40px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   background-color: #00000000;
-  background-size: cover;
+  background-size: contain;
   width: 40px;
+  position: relative;
   background-repeat: no-repeat;
-
   background-image: url("${(props) => props.image}");
+
+  &:after {
+    display: ${(props) => (props.image ? "none" : "block")};
+    font-size: 30px;
+    content: "🌵";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
 `;
 
 function Dashboadrd(props) {
   let U = props.U;
-
+  let history = useHistory();
   const [user, setUser] = useState(null);
   const [apps, updateApps] = useState(null);
 
@@ -64,24 +72,39 @@ function Dashboadrd(props) {
   if (apps) {
     apps.map((app, index) => {
       appsRender.push(
-        <Button key={index}>
-          <Link to={"/dashboard/" + app.name}>
+        <Link to={"/dashboard/" + app.name}>
+          <Button key={index}>
             <LogoImg image={U.getLogoLink(app.logo, app.name)} />
             <Span>{app.name}</Span>
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       );
     });
   }
 
+  function createApp() {
+    let form;
+    let submited = (event, data) => {
+      console.log(data);
+      history.push("/dashboard/" + data.name);
+      form.kill();
+    };
+
+    form = U.ask([
+      { h3: "What's its name?" },
+      { input: { placeholder: "name", name: "name" } },
+      { button: { innerHTML: "create", onclick: submited } },
+    ]);
+  }
   return (
     <div className="App">
       <Body>
-        <NavBar showIcon={true} />
         <br />
         <br />
         <br />
-        <Button style={{ padding: "20px 50px" }}>+ App</Button>
+        <Button onClick={createApp} style={{ padding: "20px 50px" }}>
+          + App
+        </Button>
         <br />
         <br />
         <br />

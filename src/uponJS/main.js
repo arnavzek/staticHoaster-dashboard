@@ -2,20 +2,20 @@ let adminPanel = require("./components/adminPanel");
 let backendEditor = require("./components/backendEditor");
 let uploadHostFiles = require("./components/uploadHostFiles");
 let overlayButtons = require("./components/overlayButtons");
+
 class uponJS {
-  constructor(name, disableOverLayButton) {
+  constructor(configuration) {
     this.info = {}; //to do differentiation
 
     this.configuration = {
-      cron: { daily: [], weekly: [], monthly: [], quaterly: [], yearly: [] },
       fees: {},
     };
+    Object.assign(this.configuration, configuration ? configuration : {});
     this.files = {};
-    this.db = {};
+
     this.currentPrompt = {};
-    this.cloudFunctions = {};
+
     this.borderRadius = "5px";
-    this.bucket = {}; //for image upload
 
     this.request_callbacks = {};
     this.listen_callbacks = {};
@@ -26,7 +26,7 @@ class uponJS {
     this.query = this.query.bind(this);
 
     this.socketFunctions = { query: {}, room: {} };
-    if (disableOverLayButton) this.configuration.disableOverLayButton = true;
+
     this.receivingStatus = false;
     this.loginCallback = null;
 
@@ -70,7 +70,7 @@ class uponJS {
     this.info.host = "upon.one";
     this.info.port = 80;
 
-    if (!name)
+    if (!this.configuration.name)
       if (document.querySelector("title")) {
         this.configuration.name = document
           .querySelector("title")
@@ -78,7 +78,6 @@ class uponJS {
           .toLowerCase();
       }
 
-    if (name) this.configuration.name = name;
     if (!global.uponJS_instance) {
       global.uponJS_instance = {};
     }
@@ -96,20 +95,6 @@ class uponJS {
     this.updateServerLink();
 
     if (this.configuration.job !== "receive") {
-      document.head.innerHTML += `                
-        
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-166276820-1"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-166276820-1');
-      </script>
-    
-`;
-
       this.configuration.job = "host";
       document.readyState === "complete"
         ? this.showDevelopmentOptions()
@@ -195,6 +180,9 @@ class uponJS {
       ).innerHTML += `<button style="${U.hostButtonStyle}" onclick="U.loadStylinator()"> 🎨 </button>`;
     }
 
+    this.updateServerLink();
+  };
+  updateServerLink = () => {
     if (
       window.location.host.indexOf("localhost.com:8080") !== -1 ||
       this.configuration.local === true
@@ -203,9 +191,6 @@ class uponJS {
       this.info.port = 8080;
     }
 
-    this.updateServerLink();
-  };
-  updateServerLink = () => {
     let port = this.info.port === 80 ? "" : ":" + this.info.port;
     this.info.serverUrl =
       `http://${this.configuration.name}.` + this.info.host + port;
@@ -252,24 +237,18 @@ class uponJS {
     return b ? b.pop() : "";
   }
   openBackendEditor = () => {
-    if (!this.configuration.backendCode) {
-      let loading = this.loading();
-      return this.query({ $giveBackendConfig: "" }).then((data) => {
-        this.configuration.backendCode = " ";
-        if (data)
-          if (data.backendCode)
-            this.configuration.backendCode = data.backendCode;
-        loading.kill();
-        this.openBackendEditor();
-      });
-    }
-
-    this.ask([
-      { h3: "Backend Editor" },
-      {
-        p: `<backend-editor appName="${this.configuration.name}"> </upload-host-files>`,
-      },
-    ]);
+    let loading = this.loading();
+    return this.query({ $giveBackendConfig: "" }).then((data) => {
+      if (!data) return;
+      loading.kill();
+      this.configuration.backendCode = data.backendCode;
+      this.ask([
+        { h3: "Backend Editor" },
+        {
+          p: `<backend-editor appName="${this.configuration.name}"> </upload-host-files>`,
+        },
+      ]);
+    });
   };
   openDocumentation = () => {
     let loading = this.loading();
@@ -281,7 +260,8 @@ class uponJS {
         if (key.trim() === "What is upon.one?") continue;
         returnData.push({
           h3: {
-            style: `     background: #ffffff00;
+            style: `     
+            background: #ffffff00;
             padding: 10px 30px;
             border-radius: 10px;
             font-weight: 400;
