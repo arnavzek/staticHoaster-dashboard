@@ -27,7 +27,7 @@ let Buttons = styled.div`
   gap: 25px;
 `;
 
-let Button = styled.button`
+let Button = styled.a`
   padding: 10px 15px;
   border: none;
   border-radius: 5px;
@@ -67,12 +67,58 @@ function ManageApp(props) {
   useEffect(function () {
     let U = new global.uponJS({
       name: appName,
-      disableOverLayButton: true,
+
       local: true,
     });
     setU(U);
     mainU.query({ $searchApps: appName }).then(updateAppData);
   }, []);
+
+  let promptUploadHostFiles = () => {
+    U.ask([
+      { h3: "🚀 Upload Files" },
+      {
+        p: `<upload-host-files appName="${U.configuration.name}"> </upload-host-files>`,
+      },
+    ]);
+  };
+
+  let openBackendEditor = () => {
+    let loading = U.loading();
+    return U.query({ $giveBackendConfig: "" }).then((data) => {
+      if (!data) return;
+      loading.kill();
+      U.configuration.backendCode = data.backendCode;
+      U.ask([
+        { h3: "Backend Editor" },
+        {
+          p: `<backend-editor appName="${U.configuration.name}"> </upload-host-files>`,
+        },
+      ]);
+    });
+  };
+
+  let host = async () => {
+    if (!localStorage.getItem("dev-cookie")) {
+      return U.login("developer").then(() => {
+        promptUploadHostFiles();
+      });
+    } else {
+      promptUploadHostFiles();
+    }
+  };
+
+  let openAdminPanel = () => {
+    if (!localStorage.getItem("dev-cookie"))
+      return U.login("developer").then(U.openAdminPanel);
+
+    return U.ask([
+      { h3: " ⚙️ Settings" },
+      {
+        p: `<admin-pannel appName="${U.configuration.name}"> </admin-pannel>`,
+      },
+    ]); //dont't create it, just add it to dom
+  };
 
   function mainUI() {
     if (!U) return "";
@@ -94,8 +140,12 @@ function ManageApp(props) {
 
       {U ? (
         <Buttons>
-          <Button onClick={U.host}>🐣 Publish</Button>
-          <Button onClick={U.openBackendEditor}>🧊 Edit Backend</Button>
+          <Button onClick={host}>🚀 Host</Button>
+          <Button href={U.info.serverUrl} target="_blank">
+            🚪 Visit App
+          </Button>
+          <Button onClick={openAdminPanel}>⚙️ Settings</Button>
+          <Button onClick={openBackendEditor}>🧊 Edit Backend</Button>
         </Buttons>
       ) : (
         []

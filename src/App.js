@@ -6,7 +6,12 @@ import U from "./uponJS/main.js";
 import NavBar from "./components/navBar";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import styled from "styled-components";
-U.settings({ name: "react-test", local: true });
+let adminPanel = require("./components/adminPanel");
+let backendEditor = require("./components/backendEditor");
+let uploadHostFiles = require("./components/uploadHostFiles");
+let overlayButtons = require("./components/overlayButtons");
+
+U.settings({ name: "www", local: true });
 
 let Body = styled.div`
   padding: 55px;

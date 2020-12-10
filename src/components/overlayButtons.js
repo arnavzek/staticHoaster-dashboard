@@ -41,7 +41,7 @@ class overlayButtons extends LitElement {
     let U = global.uponJS_instance[this.appName];
     return html`
       <div>
-        <button @click=${U.host}>🐣 Publish</button>
+        <button @click=${U.host}>🐣 Host</button>
         <button @click=${U.openBackendEditor}>🧊 Edit Backend</button>
         <button @click=${U.openDocumentation}>💡 Learn</button>
         <button @click=${U.openAdminPanel}>⚙️</button>

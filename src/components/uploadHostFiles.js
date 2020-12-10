@@ -71,17 +71,20 @@ class uploadHostFiles extends LitElement {
       .custom-file-upload,
       a {
         text-decoration: none;
-        font-size: 12px;
-        transition: All ease-in 0.25s;
+        font-size: 14px;
+        transition: all 0.25s ease-in 0s;
         width: auto;
-        background: #000000;
-        padding: 15px 35px;
-        color: #fff !important;
-        font-weight: 100 !important;
+        margin: 0px;
+        background: rgb(0, 0, 0);
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 12px 20px;
         cursor: pointer;
         border: none;
-        margin: 0;
+
         border-radius: 400px;
+        color: rgb(255, 255, 255) !important;
+        font-weight: 100 !important;
       }
 
       .file {
@@ -193,16 +196,6 @@ class uploadHostFiles extends LitElement {
             />
             + Main Directory
           </label>
-
-          <a
-            style="    
-              font-weight: 900;
-              color: #000;"
-            href="${U.info.serverUrl}"
-            target="_blank"
-          >
-            Visit App
-          </a>
         </div>
       </div>
     `;

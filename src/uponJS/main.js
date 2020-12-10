@@ -1,8 +1,3 @@
-let adminPanel = require("./components/adminPanel");
-let backendEditor = require("./components/backendEditor");
-let uploadHostFiles = require("./components/uploadHostFiles");
-let overlayButtons = require("./components/overlayButtons");
-
 class uponJS {
   constructor(configuration) {
     this.info = {}; //to do differentiation
@@ -60,13 +55,6 @@ class uponJS {
         : (document.cookie = `user-cookie=${cookie}; expires=Sun, 1 Jan 2023 00:00:00 UTC; path=/`);
     }
 
-    document.addEventListener("keydown", (evt) => {
-      if (evt.ctrlKey && evt.shiftKey && evt.key === "a") {
-        //CTRL+ALT+A -> open Admin Panel
-        this.openAdminPanel();
-      }
-    });
-
     this.info.host = "upon.one";
     this.info.port = 80;
 
@@ -96,30 +84,9 @@ class uponJS {
 
     if (this.configuration.job !== "receive") {
       this.configuration.job = "host";
-      document.readyState === "complete"
-        ? this.showDevelopmentOptions()
-        : window.addEventListener("load", this.showDevelopmentOptions);
     }
   }
-  showDevelopmentOptions = () => {
-    // if (document.querySelector('link[type="image/x-icon"]')) {
-    //   this.configuration.logo = document
-    //     .querySelector('link[type="image/x-icon"]')
-    //     .getAttribute("href");
-    // }
 
-    // if (document.querySelector('meta[property="og:description"]')) {
-    //   this.configuration.description = document
-    //     .querySelector('meta[property="og:description"]')
-    //     .getAttribute("content");
-    // }
-
-    // this.query({ $updateMetaData: this.configuration });
-    if (this.configuration.disableOverLayButton) return;
-    let buttons = document.createElement("overlay-buttons");
-    buttons.setAttribute("appName", this.configuration.name);
-    document.body.appendChild(buttons);
-  };
   runCloudFunction = (functionName, arg) => {
     return this.query({ $run: [functionName, arg] });
   };
@@ -183,46 +150,21 @@ class uponJS {
     this.updateServerLink();
   };
   updateServerLink = () => {
+    let protocol = "https";
+
     if (
       window.location.host.indexOf("localhost.com:8080") !== -1 ||
       this.configuration.local === true
     ) {
       this.info.host = "localhost.com";
       this.info.port = 8080;
+      protocol = "http";
     }
 
-    let port = this.info.port === 80 ? "" : ":" + this.info.port;
-    this.info.serverUrl =
-      `http://${this.configuration.name}.` + this.info.host + port;
-  };
-  promptUploadHostFiles = () => {
-    this.ask([
-      { h3: "🚀 Upload Files" },
-      {
-        p: `<upload-host-files appName="${this.configuration.name}"> </upload-host-files>`,
-      },
-    ]);
-  };
-  host = async () => {
-    if (!this.configuration.name)
-      return this.ask([
-        { h3: "Invalid App name" },
-        {
-          p:
-            "Either update the Title tag or add the following line: U.settings({name:'Doom'})",
-        },
-      ]);
+    let portString = this.info.port === 80 ? "" : ":" + this.info.port;
 
-    let checkDevIsLoggedIn = () => {
-      if (!localStorage.getItem("dev-cookie")) {
-        return this.login("developer").then(() => {
-          this.promptUploadHostFiles();
-        });
-      } else {
-        this.promptUploadHostFiles();
-      }
-    };
-    checkDevIsLoggedIn();
+    this.info.serverUrl =
+      `${protocol}://${this.configuration.name}.` + this.info.host + portString;
   };
 
   addCron(when, code) {
@@ -236,20 +178,7 @@ class uponJS {
     var b = document.cookie.match("(^|;)\\s*" + a + "\\s*=\\s*([^;]+)");
     return b ? b.pop() : "";
   }
-  openBackendEditor = () => {
-    let loading = this.loading();
-    return this.query({ $giveBackendConfig: "" }).then((data) => {
-      if (!data) return;
-      loading.kill();
-      this.configuration.backendCode = data.backendCode;
-      this.ask([
-        { h3: "Backend Editor" },
-        {
-          p: `<backend-editor appName="${this.configuration.name}"> </upload-host-files>`,
-        },
-      ]);
-    });
-  };
+
   openDocumentation = () => {
     let loading = this.loading();
     this.query({ $giveDocumentation: "" }).then((data) => {
@@ -366,17 +295,7 @@ class uponJS {
   loadStylinator(componentName) {
     return (document.body.innerHTML += "<stylinator-bar> </stylinator-bar>");
   }
-  openAdminPanel = () => {
-    if (!localStorage.getItem("dev-cookie"))
-      return U.login("developer").then(U.openAdminPanel);
 
-    return U.ask([
-      { h3: " ⚙️ Settings" },
-      {
-        p: `<admin-pannel appName="${this.configuration.name}"> </admin-pannel>`,
-      },
-    ]); //dont't create it, just add it to dom
-  };
   print(data) {
     console.log(
       "%c" + data,
@@ -572,8 +491,7 @@ class uponJS {
         "140572074409-ijht2s8v0ldnotak190gbqi4gh8ci72e.apps.googleusercontent.com";
       const redirectUri = this.getSubAppUrl("auth");
       const responseType = "code";
-      const scope =
-        "profile email openid https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/user.birthday.read";
+      const scope = "profile email openid";
       const state = JSON.stringify({
         appName: this.configuration.name,
         devLogin: devLogin,
@@ -737,19 +655,7 @@ class uponJS {
         { input: { name: "name", placeholder: "Full name", required: true } },
         { input: { name: "username", required: true } },
         { input: { name: "password", required: true, type: "password" } },
-
-        { input: { name: "birthday", type: "date" } },
         { input: { name: "email", required: true } },
-        {
-          input: {
-            type: "radio",
-            checked: true,
-            name: "gender",
-            value: "male",
-          },
-        },
-        { input: { type: "radio", name: "gender", value: "female" } },
-        { input: { type: "radio", name: "gender", value: "pride" } },
         { button: { onclick: signUp, innerHTML: "Sign up" } },
       ];
 
@@ -856,81 +762,7 @@ class uponJS {
       this.random()
     );
   };
-  changeProfilePicture = async (type) => {
-    return new Promise((resolve) => {
-      if (!type) type = "user";
 
-      let inputFileElement = document.createElement("input");
-      inputFileElement.setAttribute("type", "file");
-      inputFileElement.addEventListener("change", setProfilePicture);
-      let prompt;
-
-      function giveImage(user) {
-        return `<img style="      
-        background: #000000;
-        border-radius: 20px;
-        height: 150px;
-        width: 150px;
-        margin-top:30px;
-        object-fit: cover;
-        padding: 10px;" src="${this.profilePictureLink(user.id)}">`;
-      }
-
-      prompt = this.ask([
-        {
-          h3: "Change Profile Picture",
-          p: {
-            id: "imageContainer",
-            innerHTML: this.loadingSVG,
-            style: "display:flex; justify-content:center; align-items:center;",
-          },
-        },
-        { button: { innerHTML: "Change", onclick: chooseProfilePicture } },
-        {
-          button: {
-            innerHTML: "✓",
-            onclick: () => {
-              prompt.kill();
-              resolve();
-            },
-          },
-        },
-      ]);
-
-      this.query("$" + type).then((user) => {
-        if (!user) return this.ask([{ h1: "You need to login First" }]);
-        prompt.dom.querySelector("#imageContainer").innerHTML = giveImage(user);
-      });
-
-      async function setProfilePicture(event) {
-        let loading = this.loading("Uploading Profile");
-        let file = event.target.files[0];
-        let options = {
-          maxSizeMB: 1, // (default: Number.POSITIVE_INFINITY)
-          maxWidthOrHeight: 200, // compressedFile will scale down by ratio to a point that width or height is smaller than maxWidthOrHeight (default: undefined)
-          //  onProgress: Function,       // optional, a function takes one progress argument (percentage from 0 to 100)
-          useWebWorker: true, // optional, use multi-thread web worker, fallback to run in main-thread (default: true)
-
-          // following options are for advanced user
-          // maxIteration: number,       // optional, max number of iteration to compress the image (default: 10)
-          // exifOrientation: number,    // optional, see https://stackoverflow.com/a/32490603/10395024
-          fileType: "jpg", // optional, fileType override
-          // initialQuality: number      // optional, initial quality value between 0 and 1 (default: 1)
-        };
-
-        let newFile = await this.compressImage(file, options);
-        await this.utility.upload(newFile, "profilePicture", null, {
-          profilePictureOf: type,
-        });
-        loading.kill();
-        this.changeProfilePicture(type).then(resolve);
-      }
-
-      function chooseProfilePicture() {
-        inputFileElement.click();
-      }
-    });
-  };
   loading = (message) => {
     if (!message) message = "Loading..";
     return this.ask([{ h3: message }, { p: this.loadingSVG }]);
@@ -1285,7 +1117,7 @@ class uponJS {
                 background: #000000c9;
                 left: 0;
                 backdrop-filter: blur(20px);
-                position: absolute;
+                position: fixed;
                 top: 0;
               }
               
@@ -1690,24 +1522,6 @@ class uponJS {
     let url = await this.utility.upload(file, bucket, originalFileName);
     if (url.error) return this.say(url.error);
     return url;
-  };
-  compressImage = async (file, options) => {
-    if (!this.browserCompress) {
-      let cdnLink = "https://cdn.skypack.dev/browser-image-compression";
-      this.browserCompress = await import(cdnLink);
-
-      this.browserCompress = this.browserCompress.default;
-    }
-
-    if (!options)
-      options = {
-        maxSizeMB: 0.5,
-        useWebWorker: true,
-        fileType: "jpeg",
-      };
-
-    let newFIle = await this.browserCompress(file, options);
-    return newFIle;
   };
 }
 
