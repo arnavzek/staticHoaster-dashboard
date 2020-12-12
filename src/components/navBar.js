@@ -20,31 +20,37 @@ let HeadRowButton = styled.button`
   border: none;
   background: transparent;
   text-decoration: none;
-  font-weight: 900;
+  font-weight: 500;
   cursor: pointer;
+  color: #444;
   font-size: 15px;
   font-family: ${theme.fontFamily};
 `;
 
 let LogoText = styled.h3`
   display: flex;
-  font-size: 20px;
+  font-size: 25px;
+  margin: 0;
+  font-weight: 700;
 
-  font-weight: 900;
   font-family: ${theme.fontFamily};
 `;
 
 let LogoImg = styled.img`
-  height: 40px;
-  margin-top: -10px;
+  height: 30px;
+  margin: 0;
+  margin-left: 30px;
+  margin-right: 10px;
+
   display: flex;
 
-  width: 40px;
+  width: 30px;
 `;
 
 let LogoContainer = styled.div`
   justify-content: center;
   display: flex;
+  height: 100%;
   align-items: center;
 `;
 
@@ -52,7 +58,10 @@ let Div = styled.div`
   justify-content: space-between;
   display: flex;
   padding: 10px;
+  background: #9999991c;
   flex-direction: row;
+  border-radius: 20px;
+  margin-bottom: 20px;
 `;
 
 function NavBar(props) {
@@ -68,10 +77,13 @@ function NavBar(props) {
       </Link>
       <HeadRow>
         <HeadRowButton key={4}>
+          <Link to="/docs">Docs</Link>
+        </HeadRowButton>
+        <HeadRowButton key={4}>
           <Link to="/dashboard">Dashboard</Link>
         </HeadRowButton>
         <HeadRowButton key={5}>
-          <a target="_blank" href="https://discord.gg/T6KsYPaQ">
+          <a target="_blank" href="https://discord.gg/s8ZysABauT">
             Contact on Discord
           </a>
         </HeadRowButton>

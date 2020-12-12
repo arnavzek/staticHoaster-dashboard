@@ -67,8 +67,7 @@ function ManageApp(props) {
   useEffect(function () {
     let U = new global.uponJS({
       name: appName,
-
-      local: true,
+      local: false,
     });
     setU(U);
     mainU.query({ $searchApps: appName }).then(updateAppData);

@@ -1,6 +1,6 @@
 import React from "react";
 
-import grass from "../media/grass.svg";
+import grass from "../media/blob.svg";
 import styled from "styled-components";
 import theme from "../theme.js";
 import { Link } from "react-router-dom";
@@ -10,13 +10,14 @@ let LoginButton = styled.button`
   background: transparent;
   padding: 10px 30px;
   color: #fff;
-  font-weight: 900;
+  font-weight: 400;
   font-family: roboto;
   font-size: 20px;
   cursor: pointer;
-  border-radius: 5px;
+  padding: 20px 30px;
+  border-radius: 10px;
   background: #000;
-  box-shadow: 8px 7px 1px #28fd57;
+
   margin-top: 20px;
 `;
 
@@ -43,7 +44,20 @@ let IntroContainerText = styled.div`
   margin-bottom: 5px;
 `;
 
-let GrassImg = styled.img`
+let GrassImg1 = styled.img`
+  height: 450px;
+  margin-top: 10px;
+  margin-bottom: -112px;
+  margin-right: 30px;
+  width: 450px;
+`;
+let GrassImg2 = styled.img`
+  height: 280px;
+  margin-top: 100px;
+  margin-bottom: -30px;
+  width: 280px;
+`;
+let GrassImg3 = styled.img`
   height: 280px;
   margin-top: 100px;
   margin-bottom: -10px;
@@ -54,6 +68,7 @@ let VisualBalanceContainer = styled.div`
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
+  flex-direction: row;
   display: none;
   @media (min-width: 768px) {
     display: flex;
@@ -69,12 +84,12 @@ function WelcomeBoard() {
           <IntroContainerText>Platform for creating web app</IntroContainerText>
 
           <Link to="/dashboard">
-            <LoginButton>Login/sign up</LoginButton>
+            <LoginButton>Get Started</LoginButton>
           </Link>
         </IntroContainer>
 
         <VisualBalanceContainer>
-          <GrassImg src={grass} className="App-logo" alt="logo" />
+          <GrassImg1 src={grass} className="App-logo" alt="logo" />
         </VisualBalanceContainer>
       </MainContainer>
     </div>

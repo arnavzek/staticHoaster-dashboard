@@ -306,9 +306,7 @@ class adminPannel extends LitElement {
                 U.promptUploadHostFiles
               }">Upload secondary Files</button>
 
-              <button @click="${() => {
-                U.changeProfilePicture("developer");
-              }}">Change Profile Picture</button>
+            
             </div>
 
             <console-logs appName="${this.appName}"></console-logs>
@@ -334,10 +332,13 @@ class consoleLogs extends LitElement {
   constructor() {
     super();
     this.refresh = this.refresh.bind(this);
-    this.refresh();
   }
 
+  firstUpdated() {
+    this.refresh();
+  }
   refresh() {
+    console.log(this.appName, "aaaaa", global);
     let U = global.uponJS_instance[this.appName];
 
     U.query({ $readLogs: 10 }, true)
@@ -386,7 +387,7 @@ class consoleLogs extends LitElement {
           `
         : html`Loading...`}
 
-      <button @click="${this.refresh}">Refresh</button>
+      <button @click="${this.refresh.bind(this)}">Refresh</button>
     `;
   }
 }

@@ -9,7 +9,7 @@ let Button = styled.button`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-radius: 50px;
+  border-radius: 5px;
   padding: 10px 25px;
   cursor: pointer;
   display: flex;
@@ -18,7 +18,9 @@ let Button = styled.button`
 let DashboardOptionContainer = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 25px;
+  margin-top: 50px;
+  width: 100%;
+  justify-content: space-between;
 `;
 
 let DashboardOption = styled.button`
@@ -26,14 +28,13 @@ let DashboardOption = styled.button`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-radius: 50px;
-  padding: 10px 25px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
-  font-size: 18px;
+  font-size: 14px;
+  color: #fff;
   padding: 13px 40px;
-  background: #fff;
-  box-shadow: 1px 1px 19px #99999991;
+  background: #000;
 `;
 
 let AppCollection = styled.div`
@@ -44,21 +45,65 @@ let AppCollection = styled.div`
   flex-wrap: wrap;
 `;
 
-let Body = styled.div`
-  padding: 55px;
-`;
+let Body = styled.div``;
 
 let Span = styled.span`
   border: 1px;
   padding: 10px 25px;
 `;
 
+let Options = styled.div`
+  display: flex;
+  gap: 25px;
+  margin-top: 30px;
+`;
+
+let Hr = styled.hr`
+  border: none;
+  height: 1px;
+  background: #000000b5;
+`;
+
+let Option = styled.div`
+  cursor: pointer;
+`;
+
+let UserData = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 25px;
+  align-items: center;
+`;
+
+let Name = styled.div`
+  font-size: 30px;
+  font-weight: 900;
+`;
+
+let ProfilePicture = styled.img`
+  height: 33px;
+  object-fit: cover;
+  width: 33px;
+  border-radius: 500px;
+`;
+
+let Zzz = styled.div`
+  height: 200px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  display: flex;
+  font-size: 24px;
+`;
 let LogoImg = styled.div`
   height: 40px;
   display: flex;
   background-color: #00000000;
   background-size: contain;
   width: 40px;
+  object-fit: cover;
   position: relative;
   background-repeat: no-repeat;
   background-image: url("${(props) => props.image}");
@@ -79,14 +124,19 @@ function Dashboadrd(props) {
   let history = useHistory();
   const [user, setUser] = useState(null);
   const [apps, updateApps] = useState(null);
-
-  useEffect(function () {
-    U.readUser("developer").then((data) => {
-      if (!data) return window.U.login("developer");
+  const [loading, updateLoadingStatus] = useState(true);
+  function refresh() {
+    U.getUser("developer").then((data) => {
+      if (!data) return window.U.login("developer").then(refresh);
       setUser(data);
-      U.query({ $searchApps: { owner: data.id } }).then(updateApps);
+      U.query({ $searchApps: { owner: data.id } }).then((data) => {
+        updateApps(data);
+        updateLoadingStatus(false);
+      });
     });
-  }, []);
+  }
+
+  useEffect(refresh, []);
 
   let appsRender = [];
 
@@ -102,94 +152,6 @@ function Dashboadrd(props) {
       );
     });
   }
-
-  let compressImage = async (file, options) => {
-    if (!options)
-      options = {
-        maxSizeMB: 0.5,
-        useWebWorker: true,
-        fileType: "jpeg",
-      };
-
-    let newFIle = await imageCompression(file, options);
-    return newFIle;
-  };
-
-  let changeProfilePicture = async (type) => {
-    return new Promise((resolve) => {
-      if (!type) type = "user";
-
-      let inputFileElement = document.createElement("input");
-      inputFileElement.setAttribute("type", "file");
-      inputFileElement.addEventListener("change", setProfilePicture);
-      let prompt;
-
-      function giveImage(user) {
-        return `<img style="      
-          background: #000000;
-          border-radius: 20px;
-          height: 150px;
-          width: 150px;
-          margin-top:30px;
-          object-fit: cover;
-          padding: 10px;" src="${U.profilePictureLink(user.id)}">`;
-      }
-
-      prompt = U.ask([
-        {
-          h3: "Change Profile Picture",
-          p: {
-            id: "imageContainer",
-            innerHTML: U.loadingSVG,
-            style: "display:flex; justify-content:center; align-items:center;",
-          },
-        },
-        { button: { innerHTML: "Change", onclick: chooseProfilePicture } },
-        {
-          button: {
-            innerHTML: "✓",
-            onclick: () => {
-              prompt.kill();
-              resolve();
-            },
-          },
-        },
-      ]);
-
-      U.query("$" + type).then((user) => {
-        if (!user) return U.ask([{ h1: "You need to login First" }]);
-        prompt.dom.querySelector("#imageContainer").innerHTML = giveImage(user);
-      });
-
-      async function setProfilePicture(event) {
-        let loading = U.loading("Uploading Profile");
-        let file = event.target.files[0];
-        let options = {
-          maxSizeMB: 1, // (default: Number.POSITIVE_INFINITY)
-          maxWidthOrHeight: 200, // compressedFile will scale down by ratio to a point that width or height is smaller than maxWidthOrHeight (default: undefined)
-          //  onProgress: Function,       // optional, a function takes one progress argument (percentage from 0 to 100)
-          useWebWorker: true, // optional, use multi-thread web worker, fallback to run in main-thread (default: true)
-
-          // following options are for advanced user
-          // maxIteration: number,       // optional, max number of iteration to compress the image (default: 10)
-          // exifOrientation: number,    // optional, see https://stackoverflow.com/a/32490603/10395024
-          fileType: "jpg", // optional, fileType override
-          // initialQuality: number      // optional, initial quality value between 0 and 1 (default: 1)
-        };
-
-        let newFile = await compressImage(file, options);
-        await U.utility.upload(newFile, "profilePicture", null, {
-          profilePictureOf: type,
-        });
-        loading.kill();
-        U.changeProfilePicture(type).then(resolve);
-      }
-
-      function chooseProfilePicture() {
-        inputFileElement.click();
-      }
-    });
-  };
 
   function createApp() {
     let form;
@@ -212,22 +174,43 @@ function Dashboadrd(props) {
   return (
     <div className="App">
       <Body>
-        <br />
-        <br />
-        <br />
         <DashboardOptionContainer>
-          <DashboardOption onClick={createApp}> 👩‍🍳 Create App</DashboardOption>
-          {/* <DashboardOption onClick={changeProfilePicture}>
-            Change Profile Picture
-          </DashboardOption> */}
+          <UserData>
+            {user ? <ProfilePicture src={U.getProfilePicture(user.id)} /> : ""}
+            <Name>{user ? U.caps(user.name) : "loading..."}</Name>
+          </UserData>
+          <DashboardOption onClick={createApp}>👩‍🍳 Create App</DashboardOption>
         </DashboardOptionContainer>
-        <br />
-        <br />
-        <br />
-        {appsRender ? (
+
+        <Options>
+          <Option> Projects </Option>
+          <Option
+            onClick={() => {
+              U.logout("developer", true);
+            }}
+          >
+            Log out
+          </Option>
+          <Option
+            onClick={() => {
+              U.changeProfilePicture("developer").then(() => {
+                console.log("aaa");
+                global.location.reload();
+              });
+            }}
+          >
+            Change Profile Picture
+          </Option>
+        </Options>
+        <Hr />
+        {appsRender.length !== 0 ? (
           <AppCollection>{appsRender}</AppCollection>
         ) : (
-          <h1>Loading...</h1>
+          <Zzz>
+            {loading
+              ? "Loading"
+              : "Every masterpiece starts with a blank canvas"}
+          </Zzz>
         )}
       </Body>
     </div>

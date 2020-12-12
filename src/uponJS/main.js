@@ -1,3 +1,5 @@
+import imageCompression from "browser-image-compression";
+
 class uponJS {
   constructor(configuration) {
     this.info = {}; //to do differentiation
@@ -51,7 +53,7 @@ class uponJS {
       let devLogin = this.urlParam("devLogin");
 
       devLogin !== "false"
-        ? localStorage.setItem("dev-cookie", cookie)
+        ? localStorage.setItem("developer-cookie-localstorage", cookie)
         : (document.cookie = `user-cookie=${cookie}; expires=Sun, 1 Jan 2023 00:00:00 UTC; path=/`);
     }
 
@@ -173,7 +175,79 @@ class uponJS {
 
     this.configuration.cron[when].push(code);
   }
+  changeProfilePicture = (type) => {
+    return new Promise((resolve) => {
+      if (!type) type = "user";
 
+      let inputFileElement = document.createElement("input");
+      inputFileElement.setAttribute("type", "file");
+      inputFileElement.addEventListener("change", setProfilePicture);
+      let prompt;
+
+      function giveImage(user) {
+        return `<img style="      
+        background: #ffffff;
+        border-radius: 500px;
+        height: 150px;
+        width: 150px;
+        margin-top: 30px;
+        object-fit: cover;
+        box-shadow: 5px 5px 20px #999;
+        padding: 0;" src="${U.getProfilePicture(user.id)}">`;
+      }
+
+      prompt = U.ask([
+        {
+          h3: "Change Profile Picture",
+          p: {
+            id: "imageContainer",
+            innerHTML: U.loadingSVG,
+            style: "display:flex; justify-content:center; align-items:center;",
+          },
+        },
+        { button: { innerHTML: "Change", onclick: chooseProfilePicture } },
+        {
+          button: {
+            innerHTML: "✓",
+            onclick: () => {
+              prompt.kill();
+              resolve();
+            },
+          },
+        },
+      ]);
+
+      U.query("$" + type).then((user) => {
+        if (!user) return U.ask([{ h1: "You need to login First" }]);
+        prompt.dom.querySelector("#imageContainer").innerHTML = giveImage(user);
+      });
+
+      async function setProfilePicture(event) {
+        let loading = U.loading("Uploading Profile");
+        let file = event.target.files[0];
+        let options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 200,
+          useWebWorker: true,
+          fileType: "jpg",
+        };
+
+        let newFile = await imageCompression(file, options);
+        await U.utility.upload(newFile, "profilePicture", null, {
+          profilePictureOf: type,
+        });
+        loading.kill();
+        U.changeProfilePicture(type).then(resolve);
+      }
+
+      function chooseProfilePicture() {
+        inputFileElement.click();
+      }
+    });
+  };
+  compressImage(file, options) {
+    return imageCompression(file, options);
+  }
   getCookie(a) {
     var b = document.cookie.match("(^|;)\\s*" + a + "\\s*=\\s*([^;]+)");
     return b ? b.pop() : "";
@@ -231,7 +305,7 @@ class uponJS {
       adminMode: adminMode,
       data: query,
       type: "db",
-      cookie: localStorage.getItem("file-protocol-cookie"),
+      cookie: localStorage.getItem("user-cookie-localstorage"),
     });
 
     if (apiData.data) if (apiData.data.error) throw Error(apiData.data.error);
@@ -242,7 +316,7 @@ class uponJS {
   }
   post = (dataTobeSent, callback) => {
     dataTobeSent.cookie = this.getUserCookie();
-    dataTobeSent.devCookie = localStorage.getItem("dev-cookie");
+    dataTobeSent.developerCookie = this.getUserCookie("developer");
 
     let url = "";
     for (let value in dataTobeSent) {
@@ -309,21 +383,21 @@ class uponJS {
     );
   }
 
-  developerLogout() {
-    localStorage.removeItem("dev-cookie");
-    U.say("Done");
-  }
   deleteCookie(name) {
     document.cookie =
       name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
   }
-  logout() {
+  logout(type, reload) {
+    if (!type) type = "user";
     U.say("Logging you out..");
-    localStorage.removeItem("user");
-    localStorage.removeItem("file-protocol-cookie");
-    U.deleteCookie("user-cookie");
-    window.location.href =
-      U.getSubAppUrl("auth") + `/?logout=${window.location.origin}`;
+    localStorage.removeItem(type);
+    localStorage.removeItem(type + "-cookie-localstorage");
+    U.deleteCookie(type + "-cookie");
+    if (type == "user") {
+      return (window.location.href =
+        U.getSubAppUrl("auth") + `/?logout=${window.location.origin}`);
+    }
+    if (reload) window.location.reload();
   }
   search = (query, type) => {
     return new Promise((resolve) => {
@@ -382,29 +456,28 @@ class uponJS {
 
     return cronLog;
   };
-  readUser = (type) => {
+  getUser = (type) => {
     return new Promise((resolve) => {
-      if (!this.getUserCookie()) return resolve();
       if (!type) type = "user";
-      if (type == "developer")
-        if (localStorage.getItem(type)) {
-          let whole = JSON.parse(localStorage.getItem(type));
+      if (!this.getUserCookie(type)) return resolve();
+
+      if (localStorage.getItem(type)) {
+        let whole = JSON.parse(localStorage.getItem(type));
+        return resolve(whole);
+      } else {
+        this.query("$" + type).then(function (whole) {
+          if (!whole) {
+            console.warn(" cookie invalid");
+            return resolve();
+          }
+
+          if (whole.error) throw whole.error; //we dont send data
+
+          localStorage.setItem(type, JSON.stringify(whole));
+
           return resolve(whole);
-        } else {
-          //if someone tampers with localStorage
-          this.query("$" + type).then(function (whole) {
-            if (!whole) {
-              console.warn(" cookie invalid");
-              return resolve();
-            }
-
-            if (whole.error) throw whole.error; //we dont send data
-
-            localStorage.setItem(type, JSON.stringify(whole));
-
-            return resolve(whole);
-          });
-        }
+        });
+      }
     });
   };
   fromPhone() {
@@ -518,9 +591,10 @@ class uponJS {
     //check if it is a new sign up or old sign up
 
     if (!devLogin) {
-      localStorage.setItem("file-protocol-cookie", data.msg);
+      localStorage.setItem("user-cookie-localstorage", data.msg);
     }
-    if (devLogin) localStorage.setItem("dev-cookie", data.msg);
+    if (devLogin)
+      localStorage.setItem("developer-cookie-localstorage", data.msg);
 
     if (newSignUp) {
       let type = "user";
@@ -700,7 +774,7 @@ class uponJS {
     //not mandatory, will happen afterwards, email verified as a variable as well
 
     return new Promise((resolve) => {
-      function verify_email(event, cred) {
+      let verify_email = (event, cred) => {
         this.post(
           {
             type: "verify_email_access",
@@ -720,7 +794,7 @@ class uponJS {
             }
           }
         );
-      }
+      };
 
       let elements = [
         { h3: "Hi " + username + " check your email for verification code" },
@@ -750,7 +824,7 @@ class uponJS {
     return `${this.info.serverUrl}/cdn/${path}`;
   };
 
-  profilePictureLink = (userId) => {
+  getProfilePicture = (userId) => {
     if (!userId) {
       userId = "user";
     }
@@ -1439,11 +1513,12 @@ class uponJS {
 
     return this.currentPrompt[type];
   };
-  getUserCookie() {
-    if (localStorage.getItem("file-protocol-cookie")) {
-      return localStorage.getItem("file-protocol-cookie");
-    } else if (U.getCookie("user-cookie")) {
-      return U.getCookie("user-cookie");
+  getUserCookie(type) {
+    if (!type) type = "user";
+    if (localStorage.getItem(type + "-cookie-localstorage")) {
+      return localStorage.getItem(type + "-cookie-localstorage");
+    } else if (U.getCookie(type + "-cookie")) {
+      return U.getCookie(type + "-cookie");
     }
 
     return false;
@@ -1476,7 +1551,10 @@ class uponJS {
         return new Promise((resolve) => {
           let form = new FormData();
 
-          form.append("devCookie", localStorage.getItem("dev-cookie"));
+          form.append(
+            "developerCookie",
+            localStorage.getItem("developer-cookie-localstorage")
+          );
           if (originalFileName)
             form.append("originalFileName", originalFileName); //for replacing
           form.append("bucket", bucketName);

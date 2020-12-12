@@ -19,24 +19,22 @@ let Div = styled.div`
   line-height: 1.5;
 `;
 
-let Body = styled.div`
-  margin: 0;
-  border-radius: 30px;
-  padding: 10px;
-  color: #fff;
+let DocBody = styled.div`
+  padding: 100px 0;
+  background: transparent;
+  color: rgb(0, 0, 0);
+  margin: 0px;
+  border-radius: 0;
   display: flex;
+  -webkit-box-pack: justify;
   justify-content: space-between;
   gap: 50px;
   flex-direction: column;
+  font-family: roboto;
+`;
+
+let Body = styled.div`
   font-family: ${theme.fontFamily};
-  background-color: #000;
-  padding: 55px 300px;
-  border: 6px solid;
-  background: transparent;
-  color: #000;
-  @media (min-width: 786px) {
-    padding: 55px 300px;
-  }
 `;
 
 function createMarkup(data) {
@@ -44,17 +42,22 @@ function createMarkup(data) {
 }
 
 function Documentation() {
-  const [data, setData] = useState(null);
+  let [data, setData] = useState(null);
   useEffect(() => {
     window.U.query({ $giveDocumentation: "" }).then(setData);
   }, []);
 
-  if (!data) return <Body></Body>;
+  if (!data) data = {};
 
   const items = [];
 
   for (let key in data) {
-    if (key.trim() == "What is upon.one?" || key.trim() == "upon.one") continue;
+    if (
+      key.trim() == "What is upon.one?" ||
+      key.trim() == "upon.one" ||
+      key.trim() == "Features"
+    )
+      continue;
     items.push(
       <div key={key}>
         <H1>{key}</H1> <Div dangerouslySetInnerHTML={createMarkup(data[key])} />
@@ -62,7 +65,11 @@ function Documentation() {
     );
   }
 
-  return <Body>{items}</Body>;
+  return (
+    <Body>
+      <DocBody>{items}</DocBody>
+    </Body>
+  );
 }
 
 export default Documentation;
