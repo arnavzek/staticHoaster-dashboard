@@ -103,52 +103,6 @@ class uploadHostFiles extends LitElement {
   // show uploading and uploaded status
   //get an svg we can add whereever we want
 
-  uploadHostFiles = async (file, fileName) => {
-    //if folder is selected then add directory
-    return await this.U.utility.upload(file, "hostingUpload", fileName); //upload and get the new link, newAttributes.href so that it can be overridden
-  };
-
-  returnItems() {
-    let toReturn = [];
-
-    for (let fileName in this.files) {
-      let item = this.files[fileName];
-      toReturn.push(html` <div class="file">
-        <span class="name">${fileName}</span>
-        <span class="status"
-          >${item.uploadStatus ? "✓" : html`<loading-arc-svg />`}
-        </span>
-      </div>`);
-    }
-
-    return toReturn;
-  }
-
-  uploadFolder(event) {
-    let files = event.target.files;
-
-    for (let i = 0; i < files.length; i++) {
-      this.renderAndUpload(files[i], files[i].webkitRelativePath);
-    }
-  }
-
-  uploadMainDirectory(event) {
-    let files = event.target.files;
-
-    function changeRelativePath(path) {
-      let dirSplit = path.split("/");
-      dirSplit.shift();
-      return dirSplit.join("/");
-    }
-
-    for (let i = 0; i < files.length; i++) {
-      this.renderAndUpload(
-        files[i],
-        changeRelativePath(files[i].webkitRelativePath)
-      );
-    }
-  }
-
   render() {
     let U = global.uponJS_instance[this.appName];
     return html`
@@ -183,7 +137,7 @@ class uploadHostFiles extends LitElement {
               class="custom-file-input"
               @change="${this.uploadIndexFile}"
             />
-            + Index File
+            + Home Page
           </label>
 
           <label class="custom-file-upload">
@@ -194,7 +148,7 @@ class uploadHostFiles extends LitElement {
               class="custom-file-input"
               @change="${this.uploadMainDirectory}"
             />
-            + Main Directory
+            + Build Directory
           </label>
         </div>
       </div>

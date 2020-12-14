@@ -288,26 +288,7 @@ class adminPannel extends LitElement {
 
             <div id='container' data-display='${this.display}'>
 
-            <div id='header'>
-       
-            <button @click="${() => {
-              U.openBackendEditor();
-            }}">Setup Backend </button>
-              
-              <button @click="${() => {
-                U.developerLogout();
-              }}">Logout as Developer </button>
-
-              <button @click="${() => {
-                U.developerLogout();
-              }}">Logout as User </button>
-
-              <button @click="${
-                U.promptUploadHostFiles
-              }">Upload secondary Files</button>
-
-            
-            </div>
+        
 
             <console-logs appName="${this.appName}"></console-logs>
 

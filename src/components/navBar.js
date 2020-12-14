@@ -10,9 +10,13 @@ let HeadRow = styled.div`
   flex: 1;
   display: flex;
   margin: 25px;
-  @media (min-width: 768px) {
-    justify-content: flex-end;
-    gap: 45px;
+  justify-content: flex-end;
+  gap: 45px;
+
+  @media (max-width: 768px) {
+    margin: 20px 5px;
+    justify-content: space-between;
+    gap: 0;
   }
 `;
 
@@ -45,13 +49,26 @@ let LogoImg = styled.img`
   display: flex;
 
   width: 30px;
+
+  @media (max-width: 768px) {
+    /* padding: 20px 0; */
+    margin-left: 15px;
+  }
 `;
 
 let LogoContainer = styled.div`
   justify-content: center;
   display: flex;
+  flex-direction: row;
   height: 100%;
   align-items: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    /* padding: 20px 0; */
+
+    margin-bottom: 40px;
+  }
 `;
 
 let Div = styled.div`
@@ -62,6 +79,11 @@ let Div = styled.div`
   flex-direction: row;
   border-radius: 20px;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    background: transparent;
+    flex-wrap: wrap;
+  }
 `;
 
 function NavBar(props) {
@@ -72,7 +94,7 @@ function NavBar(props) {
       <Link key={1} to="/">
         <LogoContainer>
           <LogoImg src={logo} className="App-logo" alt="logo" />
-          <LogoText> upon.one</LogoText>
+          <LogoText> upon.one</LogoText>{" "}
         </LogoContainer>
       </Link>
       <HeadRow>

@@ -7,18 +7,24 @@ import NavBar from "./components/navBar";
 import Documentation from "./components/documentation";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import styled from "styled-components";
-let adminPanel = require("./components/adminPanel");
-let backendEditor = require("./components/backendEditor");
-let uploadHostFiles = require("./components/uploadHostFiles");
-let overlayButtons = require("./components/overlayButtons");
+import ReactGA from "react-ga";
+import { useEffect } from "react";
 
+ReactGA.initialize("UA-166276820-1");
 U.settings({ name: "www", local: false });
 
 let Body = styled.div`
   padding: 55px 150px;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 function App() {
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname + window.location.search);
+  }, []);
   return (
     <Router>
       <Body>

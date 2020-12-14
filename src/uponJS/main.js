@@ -176,7 +176,7 @@ class uponJS {
     this.configuration.cron[when].push(code);
   }
   changeProfilePicture = (type) => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (!type) type = "user";
 
       let inputFileElement = document.createElement("input");

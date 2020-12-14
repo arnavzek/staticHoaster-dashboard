@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import Overlay from "../components/overlay";
+import UploadFiles from "../components/uploadFiles";
+import Console from "../components/console";
+import DatabaseRules from "../components/databaseRules";
 import styled from "styled-components";
 
 let Body = styled.div`
@@ -17,7 +20,6 @@ let LogoContainer = styled.div`
 let LogoText = styled.div`
   font-size: 40px;
   margin-left: 15px;
-
   font-weight: 900;
 `;
 
@@ -25,6 +27,7 @@ let Buttons = styled.div`
   padding: 25px 0;
   display: flex;
   gap: 25px;
+  flex-wrap: wrap;
 `;
 
 let Button = styled.a`
@@ -36,6 +39,30 @@ let Button = styled.a`
   box-shadow: 1px 4px 13px #9999997a;
 `;
 
+const Input = styled.input`
+  display: none;
+`;
+
+const Tabs = styled.div``;
+const Tab = styled.button``;
+
+let Label = styled.label`
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.25s ease-in 0s;
+  width: auto;
+  margin: 0px;
+  background: rgb(0, 0, 0);
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 12px 20px;
+  cursor: pointer;
+  border: none;
+
+  border-radius: 400px;
+  color: rgb(255, 255, 255) !important;
+  font-weight: 100 !important;
+`;
 let LogoImg = styled.div`
   height: 40px;
   display: flex;
@@ -61,9 +88,10 @@ function ManageApp(props) {
   let mainU = props.U;
   let { appName } = useParams();
   let [U, setU] = useState(null);
-
+  let [currentTab, updateCurrentTab] = useState("console");
   let [appData, updateAppData] = useState(null);
 
+  let [dialogData, setDialogData] = useState(null);
   useEffect(function () {
     let U = new global.uponJS({
       name: appName,
@@ -72,6 +100,73 @@ function ManageApp(props) {
     setU(U);
     mainU.query({ $searchApps: appName }).then(updateAppData);
   }, []);
+
+  return (
+    <div>
+      <Overlay data={dialogData} setData={setDialogData}></Overlay>
+      {appData ? mainUI() : <h1>Loading..</h1>}
+
+      {U ? (
+        <Buttons>
+          <Label>
+            <Input
+              multiple
+              type="file"
+              onChange={(event) => {
+                setDialogData({
+                  message: "Host",
+                  children: <UploadFiles U={U} event={event} type="homePage" />,
+                });
+              }}
+            />
+            + Files
+          </Label>
+
+          <Label>
+            <Input
+              multiple
+              type="file"
+              webkitdirectory
+              onChange={(event) => {
+                setDialogData({
+                  message: "Host",
+                  children: (
+                    <UploadFiles U={U} event={event} type="BuildFolder" />
+                  ),
+                });
+              }}
+            />
+            Upload Build Folder
+          </Label>
+
+          <Button href={U.info.serverUrl} target="_blank">
+            🚪 Visit App
+          </Button>
+        </Buttons>
+      ) : (
+        []
+      )}
+
+      <Tabs>
+        <Tab
+          onClick={() => {
+            updateCurrentTab("console");
+          }}
+        >
+          Console
+        </Tab>
+        <Tab
+          onClick={() => {
+            updateCurrentTab("database rules");
+          }}
+        >
+          Database Rules
+        </Tab>
+      </Tabs>
+      <hr />
+      {getMainComponent()}
+    </div>
+  );
 
   let promptUploadHostFiles = () => {
     U.ask([
@@ -85,7 +180,7 @@ function ManageApp(props) {
   let openBackendEditor = () => {
     let loading = U.loading();
     return U.query({ $giveBackendConfig: "" }).then((data) => {
-      if (!data) return;
+      if (!data) data = { backendCode: "" };
       loading.kill();
       U.configuration.backendCode = data.backendCode;
       U.ask([
@@ -98,7 +193,7 @@ function ManageApp(props) {
   };
 
   let host = async () => {
-    if (!localStorage.getItem("dev-cookie")) {
+    if (!localStorage.getItem("developer-cookie-localstorage")) {
       return U.login("developer").then(() => {
         promptUploadHostFiles();
       });
@@ -108,7 +203,7 @@ function ManageApp(props) {
   };
 
   let openAdminPanel = () => {
-    if (!localStorage.getItem("dev-cookie"))
+    if (!localStorage.getItem("developer-cookie-localstorage"))
       return U.login("developer").then(U.openAdminPanel);
 
     return U.ask([
@@ -119,38 +214,27 @@ function ManageApp(props) {
     ]); //dont't create it, just add it to dom
   };
 
+  function getMainComponent() {
+    switch (currentTab) {
+      case "console":
+        return <Console></Console>;
+      case "database rules":
+        return <DatabaseRules></DatabaseRules>;
+    }
+  }
+
   function mainUI() {
     if (!U) return "";
     if (appData.length < 1) return;
     let app = appData[0];
     let url = U.getLogoLink(app.logo, app.name);
     return (
-      <div>
-        <LogoContainer>
-          <LogoImg image={url} />
-          <LogoText>{app.name}</LogoText>
-        </LogoContainer>
-      </div>
+      <LogoContainer>
+        <LogoImg image={url} />
+        <LogoText>{app.name}</LogoText>
+      </LogoContainer>
     );
   }
-  return (
-    <div>
-      {appData ? mainUI() : <h1>Loading..</h1>}
-
-      {U ? (
-        <Buttons>
-          <Button onClick={host}>🚀 Host</Button>
-          <Button href={U.info.serverUrl} target="_blank">
-            🚪 Visit App
-          </Button>
-          <Button onClick={openAdminPanel}>⚙️ Settings</Button>
-          <Button onClick={openBackendEditor}>🧊 Edit Backend</Button>
-        </Buttons>
-      ) : (
-        []
-      )}
-    </div>
-  );
 }
 
 export default ManageApp;

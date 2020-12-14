@@ -7,8 +7,14 @@ let Features = styled.div`
   flex-direction: row;
   gap: 25px;
   border-top: 3px solid;
+  flex-wrap: wrap;
   padding-top: 50px;
   justify-content: space-around;
+
+  @media (max-width: 768px) {
+    justify-content: flex-start;
+    padding-left: 25px;
+  }
 `;
 
 let Feature = styled.div`

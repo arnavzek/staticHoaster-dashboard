@@ -21,6 +21,11 @@ let DashboardOptionContainer = styled.div`
   margin-top: 50px;
   width: 100%;
   justify-content: space-between;
+
+  @media (max-width: 786px) {
+    flex-wrap: wrap;
+    gap: 25px;
+  }
 `;
 
 let DashboardOption = styled.button`
@@ -82,9 +87,9 @@ let Name = styled.div`
 `;
 
 let ProfilePicture = styled.img`
-  height: 33px;
+  height: 45px;
   object-fit: cover;
-  width: 33px;
+  width: 45px;
   border-radius: 500px;
 `;
 
@@ -157,10 +162,11 @@ function Dashboadrd(props) {
     let form;
     let submited = (event, data) => {
       let loading = U.loading("Creating " + data.name);
-      U.query({ $createApp: data.name }).then(() => {
+      let name = data.name.toLowerCase().replace(" ", "");
+      U.query({ $createApp: name }).then(() => {
         console.log(data);
         loading.kill();
-        history.push("/dashboard/" + data.name);
+        history.push("/dashboard/" + name);
         form.kill();
       });
     };
