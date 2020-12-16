@@ -5,18 +5,42 @@ import theme from "../theme.js";
 import loadingSVG from "../media/loading.svg";
 let Div = styled.div``;
 
-let Buttons = styled.div``;
+let Buttons = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 25px;
+`;
 
-let Button = styled.button``;
+let Button = styled.a`
+  padding: 10px 15px;
+  border: none;
+  margin: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #222;
+  color: #fff;
+`;
 
-let FileDiv = styled.div``;
+let FileDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  align-items: center;
+`;
 
-let FileName = styled.span``;
+let LoadingIcon = styled.img`
+  height: 35px;
+`;
 
-let Status = styled.button``;
+let FileName = styled.span`
+  font-size: 18px;
+`;
+
+let Status = styled.div``;
 
 function UploadFiles(props) {
-  const [files, setFiles] = useState({});
+  let [files, setFiles] = useState({});
   let U = props.U;
 
   useEffect(function () {
@@ -33,13 +57,15 @@ function UploadFiles(props) {
 
   function returnItems() {
     let toReturn = [];
-    console.log(files);
+
     for (let fileName in files) {
       let item = files[fileName];
       toReturn.push(
         <FileDiv key={fileName}>
           <FileName>{fileName}</FileName>
-          <Status>{item.uploadStatus ? "✓" : <img src={loadingSVG} />}</Status>
+          <Status>
+            {item.uploadStatus ? "✓" : <LoadingIcon src={loadingSVG} />}
+          </Status>
         </FileDiv>
       );
     }
@@ -47,56 +73,61 @@ function UploadFiles(props) {
     return toReturn;
   }
 
-  function renderAndUpload(file, fileName) {
-    if (!fileName) fileName = file.name;
+  function renderAndUpload(filesFromSelector, namingFunction) {
+    function setFilesState(data) {
+      files = data;
+      setFiles(data);
+    }
 
-    setFiles({
-      ...files,
-      [fileName]: { file: file, uploadStatus: false },
-    });
+    let firstPayload = {};
+    for (let file of filesFromSelector) {
+      let fileName = namingFunction(file);
+      firstPayload[fileName] = { file: file, uploadStatus: false };
+    }
 
-    uploadHostFiles(file, fileName).then(() => {
-      setFiles({
-        ...files,
-        [fileName]: { file: file, uploadStatus: true },
+    setFilesState(firstPayload);
+
+    for (let file of filesFromSelector) {
+      let fileName = namingFunction(file);
+      uploadHostFiles(file, fileName).then(() => {
+        let newObject = {
+          ...files,
+          [fileName]: { file: file, uploadStatus: true },
+        };
+        setFilesState(newObject);
       });
-    });
-  }
-
-  function upload(event, fileName) {
-    let files = event.target.files;
-
-    for (let file of files) {
-      renderAndUpload(file, fileName);
     }
   }
 
   function uploadIndexFile(event) {
-    upload(event, "index.html");
+    let files = event.target.files;
+
+    renderAndUpload(files, () => {
+      return "index.html";
+    });
   }
 
   function uploadMainDirectory(event) {
     let files = event.target.files;
 
-    function changeRelativePath(path) {
+    function changeRelativePath(file) {
+      console.log(file);
+      let path = file.webkitRelativePath;
       let dirSplit = path.split("/");
       dirSplit.shift();
       return dirSplit.join("/");
     }
 
-    for (let i = 0; i < files.length; i++) {
-      renderAndUpload(
-        files[i],
-        changeRelativePath(files[i].webkitRelativePath)
-      );
-    }
+    renderAndUpload(files, changeRelativePath);
   }
 
   return (
     <Div>
       {returnItems()}
       <Buttons>
-        <Button> Visit App </Button>
+        <Button href={U.info.serverUrl} target="_blank">
+          Visit App
+        </Button>
       </Buttons>
     </Div>
   );

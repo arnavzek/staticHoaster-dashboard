@@ -24,45 +24,71 @@ let LogoText = styled.div`
 `;
 
 let Buttons = styled.div`
-  padding: 25px 0;
   display: flex;
+  justify-content: flex-end;
   gap: 25px;
+  align-items: center;
   flex-wrap: wrap;
 `;
 
-let Button = styled.a`
-  padding: 10px 15px;
+let Intro = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin: 50px 200px;
+  color: #888;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+let Button = styled.label`
+  padding: 10px 25px;
   border: none;
   border-radius: 5px;
+  color: #000;
   cursor: pointer;
+  font-size: 13px;
   background: #fff;
-  box-shadow: 1px 4px 13px #9999997a;
+  border: 0.1px solid #10101078;
+  box-shadow: 1px 4px 13px #9999998a;
 `;
 
 const Input = styled.input`
   display: none;
 `;
 
-const Tabs = styled.div``;
-const Tab = styled.button``;
-
-let Label = styled.label`
-  text-decoration: none;
-  font-size: 14px;
-  transition: all 0.25s ease-in 0s;
-  width: auto;
-  margin: 0px;
-  background: rgb(0, 0, 0);
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 12px 20px;
-  cursor: pointer;
+const Hr = styled.hr`
   border: none;
-
-  border-radius: 400px;
-  color: rgb(255, 255, 255) !important;
-  font-weight: 100 !important;
+  height: 1px;
+  margin: 0;
+  background: #00000045;
 `;
+const Tabs = styled.div``;
+
+const Tab = styled.button`
+  position: relative;
+  display: inline-block;
+  padding: 16px 12px;
+  text-decoration: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.2s ease;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: -1px;
+  border-bottom: 1px solid;
+  background: transparent;
+
+  border-bottom: ${(props) => {
+    return props.currentTab == props.id ? "1px solid" : "none";
+  }};
+
+  color: ${(props) => {
+    return props.currentTab == props.id ? "#000" : "#777";
+  }};
+`;
+
 let LogoImg = styled.div`
   height: 40px;
   display: flex;
@@ -84,142 +110,136 @@ let LogoImg = styled.div`
   }
 `;
 
+let TopDiv = styled.div`
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 function ManageApp(props) {
   let mainU = props.U;
   let { appName } = useParams();
   let [U, setU] = useState(null);
-  let [currentTab, updateCurrentTab] = useState("console");
+  let [currentTab, updateCurrentTab] = useState("overview");
   let [appData, updateAppData] = useState(null);
-
+  let [indexStatus, setIndexStatus] = useState("loading");
   let [dialogData, setDialogData] = useState(null);
   useEffect(function () {
     let U = new global.uponJS({
       name: appName,
-      local: false,
+      local: true,
+      disableGoogleAnalytics: true,
     });
+
+    fetch(U.info.serverUrl).then((data) => {
+      try {
+        data
+          .json()
+          .then((data2) => {
+            if (data2.error) setIndexStatus("not found");
+          })
+          .catch((e) => {
+            setIndexStatus("uploaded");
+          });
+      } catch (e) {}
+    });
+
     setU(U);
     mainU.query({ $searchApps: appName }).then(updateAppData);
   }, []);
 
+  let mainButtons = [
+    <Button>
+      <Input
+        multiple
+        type="file"
+        onChange={(event) => {
+          if (event.target.files.length == 0) return;
+          setDialogData({
+            message: "🚀 Host",
+            children: <UploadFiles U={U} event={event} type="homePage" />,
+          });
+        }}
+      />
+      Upload Home Page
+    </Button>,
+
+    <Button>
+      <input
+        type="file"
+        multiple
+        directory=""
+        webkitdirectory
+        className="invisibleInput"
+        webkitdirectory=""
+        onChange={(event) => {
+          if (event.target.files.length == 0) return;
+          setDialogData({
+            message: "🚀 Host",
+            children: <UploadFiles U={U} event={event} type="BuildFolder" />,
+          });
+        }}
+      />
+      Upload Build Folder
+    </Button>,
+  ];
+
   return (
     <div>
       <Overlay data={dialogData} setData={setDialogData}></Overlay>
-      {appData ? mainUI() : <h1>Loading..</h1>}
+      <TopDiv>
+        {appData ? mainUI() : <LogoContainer>Loading..</LogoContainer>}
 
-      {U ? (
-        <Buttons>
-          <Label>
-            <Input
-              multiple
-              type="file"
-              onChange={(event) => {
-                setDialogData({
-                  message: "Host",
-                  children: <UploadFiles U={U} event={event} type="homePage" />,
-                });
-              }}
-            />
-            + Files
-          </Label>
-
-          <Label>
-            <Input
-              multiple
-              type="file"
-              webkitdirectory
-              onChange={(event) => {
-                setDialogData({
-                  message: "Host",
-                  children: (
-                    <UploadFiles U={U} event={event} type="BuildFolder" />
-                  ),
-                });
-              }}
-            />
-            Upload Build Folder
-          </Label>
-
-          <Button href={U.info.serverUrl} target="_blank">
-            🚪 Visit App
-          </Button>
-        </Buttons>
-      ) : (
-        []
-      )}
-
+        {U ? (
+          <Buttons>
+            {mainButtons}
+            <Button>
+              <a href={U.info.serverUrl} target="_blank">
+                🚪 Visit App
+              </a>
+            </Button>
+          </Buttons>
+        ) : (
+          []
+        )}
+      </TopDiv>
       <Tabs>
-        <Tab
-          onClick={() => {
-            updateCurrentTab("console");
-          }}
-        >
-          Console
+        <Tab onClick={setTab} currentTab={currentTab} id={"overview"}>
+          Overview
         </Tab>
-        <Tab
-          onClick={() => {
-            updateCurrentTab("database rules");
-          }}
-        >
+        <Tab id={"databaseRules"} currentTab={currentTab} onClick={setTab}>
           Database Rules
         </Tab>
       </Tabs>
-      <hr />
+      <Hr />
       {getMainComponent()}
     </div>
   );
 
-  let promptUploadHostFiles = () => {
-    U.ask([
-      { h3: "🚀 Upload Files" },
-      {
-        p: `<upload-host-files appName="${U.configuration.name}"> </upload-host-files>`,
-      },
-    ]);
-  };
-
-  let openBackendEditor = () => {
-    let loading = U.loading();
-    return U.query({ $giveBackendConfig: "" }).then((data) => {
-      if (!data) data = { backendCode: "" };
-      loading.kill();
-      U.configuration.backendCode = data.backendCode;
-      U.ask([
-        { h3: "Backend Editor" },
-        {
-          p: `<backend-editor appName="${U.configuration.name}"> </upload-host-files>`,
-        },
-      ]);
-    });
-  };
-
-  let host = async () => {
-    if (!localStorage.getItem("developer-cookie-localstorage")) {
-      return U.login("developer").then(() => {
-        promptUploadHostFiles();
-      });
-    } else {
-      promptUploadHostFiles();
-    }
-  };
-
-  let openAdminPanel = () => {
-    if (!localStorage.getItem("developer-cookie-localstorage"))
-      return U.login("developer").then(U.openAdminPanel);
-
-    return U.ask([
-      { h3: " ⚙️ Settings" },
-      {
-        p: `<admin-pannel appName="${U.configuration.name}"> </admin-pannel>`,
-      },
-    ]); //dont't create it, just add it to dom
-  };
+  function setTab(event) {
+    updateCurrentTab(event.target.getAttribute("id"));
+  }
 
   function getMainComponent() {
     switch (currentTab) {
-      case "console":
-        return <Console></Console>;
-      case "database rules":
-        return <DatabaseRules></DatabaseRules>;
+      case "overview":
+        if (indexStatus == "uploaded") return <Console U={U}></Console>;
+        return (
+          <div>
+            {indexStatus == "not found" ? (
+              <Intro>
+                You can simply upload any HTML file by selecting the above
+                "upload home page" button or if you are using react or vue use
+                the "Upload Build Folder" Button
+              </Intro>
+            ) : (
+              "loading..."
+            )}
+          </div>
+        );
+      case "databaseRules":
+        return <DatabaseRules U={U}></DatabaseRules>;
     }
   }
 
@@ -231,7 +251,7 @@ function ManageApp(props) {
     return (
       <LogoContainer>
         <LogoImg image={url} />
-        <LogoText>{app.name}</LogoText>
+        <LogoText>{U.caps(app.name)}</LogoText>
       </LogoContainer>
     );
   }

@@ -48,6 +48,19 @@ class uponJS {
 
     //----------------------Set cookie from url param----------------------------------------
 
+    if (!this.configuration.disableGoogleAnalytics) {
+      let anaScript = document.createElement("script");
+      anaScript.innerHTML = `
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        
+        ga('create', 'UA-166276820-1', 'auto');
+        ga('send', 'pageview');
+      `;
+      document.head.appendChild(anaScript);
+    }
     if (this.urlParam("cookie")) {
       let cookie = this.urlParam("cookie");
       let devLogin = this.urlParam("devLogin");
@@ -176,7 +189,7 @@ class uponJS {
     this.configuration.cron[when].push(code);
   }
   changeProfilePicture = (type) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (!type) type = "user";
 
       let inputFileElement = document.createElement("input");
@@ -339,6 +352,7 @@ class uponJS {
     if (this.configuration.job !== "host")
       headerParam.credentials = "same-origin";
 
+    console.log(this.info.serverUrl, this.configuration);
     fetch(this.info.serverUrl, {
       method: "POST",
       headers: headerParam,

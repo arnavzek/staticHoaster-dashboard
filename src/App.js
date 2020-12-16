@@ -7,11 +7,11 @@ import NavBar from "./components/navBar";
 import Documentation from "./components/documentation";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import styled from "styled-components";
-import ReactGA from "react-ga";
+//import ReactGA from "react-ga";
 import { useEffect } from "react";
 
-ReactGA.initialize("UA-166276820-1");
-U.settings({ name: "www", local: false });
+//ReactGA.initialize("UA-166276820-1");
+U.settings({ name: "www", local: true });
 
 let Body = styled.div`
   padding: 55px 150px;
@@ -22,9 +22,6 @@ let Body = styled.div`
 `;
 
 function App() {
-  useEffect(() => {
-    ReactGA.pageview(window.location.pathname + window.location.search);
-  }, []);
   return (
     <Router>
       <Body>
