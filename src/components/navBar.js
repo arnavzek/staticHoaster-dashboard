@@ -74,12 +74,12 @@ let LogoContainer = styled.div`
 let Div = styled.div`
   justify-content: space-between;
   display: flex;
-  padding: 10px;
+  padding: 0;
   background: #9999991c;
   flex-direction: row;
-  border-radius: 20px;
+  border-radius: 5px;
   margin-bottom: 20px;
-
+  padding: 0 110px;
   @media (max-width: 768px) {
     background: transparent;
     flex-wrap: wrap;
@@ -98,13 +98,13 @@ function NavBar(props) {
         </LogoContainer>
       </Link>
       <HeadRow>
-        <HeadRowButton key={4}>
+        <HeadRowButton key={1}>
           <Link to="/docs">Docs</Link>
         </HeadRowButton>
-        <HeadRowButton key={4}>
+        <HeadRowButton key={2}>
           <Link to="/dashboard">Dashboard</Link>
         </HeadRowButton>
-        <HeadRowButton key={5}>
+        <HeadRowButton key={3}>
           <a target="_blank" href="https://discord.gg/s8ZysABauT">
             Contact on Discord
           </a>

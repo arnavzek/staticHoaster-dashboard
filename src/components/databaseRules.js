@@ -51,6 +51,7 @@ function BackendCodeEditor(props) {
           mode="javascript"
           theme="monokai"
           width="auto"
+          focus={true}
           showPrintMargin={false}
           style={{ background: "#2f3129" }}
         />

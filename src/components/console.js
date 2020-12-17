@@ -34,8 +34,8 @@ function Console(props) {
   }, []);
   if (logs) if (logs.length == 0) logs.push({ log: "Log is empty" });
 
-  let logDivs = logs.map((item) => {
-    return <LogDiv>{item.log}</LogDiv>;
+  let logDivs = logs.map((item, index) => {
+    return <LogDiv key={index}>{item.log}</LogDiv>;
   });
 
   return (

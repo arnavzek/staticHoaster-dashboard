@@ -150,7 +150,9 @@ function Dashboadrd(props) {
       appsRender.push(
         <Link to={"/dashboard/" + app.name}>
           <Button key={index}>
-            <LogoImg image={U.getLogoLink(app.logo, app.name)} />
+            <LogoImg
+              image={app.logo ? U.getSubAppUrl(app.name) + "/" + app.logo : ""}
+            />
             <Span>{app.name}</Span>
           </Button>
         </Link>
@@ -163,12 +165,18 @@ function Dashboadrd(props) {
     let submited = (event, data) => {
       let loading = U.loading("Creating " + data.name);
       let name = data.name.toLowerCase().replace(" ", "");
-      U.query({ $createApp: name }).then(() => {
-        console.log(data);
-        loading.kill();
-        history.push("/dashboard/" + name);
-        form.kill();
-      });
+      U.query({ $createApp: name })
+        .then((data) => {
+          console.log(data);
+          loading.kill();
+          history.push("/dashboard/" + name);
+          form.kill();
+        })
+        .catch((e) => {
+          loading.kill();
+          console.log(e);
+          return U.say(e.message);
+        });
     };
 
     form = U.ask([
@@ -189,8 +197,9 @@ function Dashboadrd(props) {
         </DashboardOptionContainer>
 
         <Options>
-          <Option> Projects </Option>
+          <Option key={1}> Projects </Option>
           <Option
+            key={2}
             onClick={() => {
               U.logout("developer", true);
             }}
@@ -198,6 +207,7 @@ function Dashboadrd(props) {
             Log out
           </Option>
           <Option
+            key={3}
             onClick={() => {
               U.changeProfilePicture("developer").then(() => {
                 console.log("aaa");

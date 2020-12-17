@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { useEffect } from "react";
 
 //ReactGA.initialize("UA-166276820-1");
-U.settings({ name: "www", local: true });
+U.settings({ name: "www", local: false });
 
 let Body = styled.div`
   padding: 55px 150px;
@@ -24,8 +24,8 @@ let Body = styled.div`
 function App() {
   return (
     <Router>
+      <NavBar U={U} />
       <Body>
-        <NavBar U={U} />
         <Switch>
           <Route path="/dashboard/:appName">
             <ManageApp U={U} />

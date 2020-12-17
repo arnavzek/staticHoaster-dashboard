@@ -11,7 +11,8 @@ let ContentContainer = styled.div`
   background: #fff;
   top: 50px;
   border-radius: 5px;
-
+  max-height: 80vh;
+  overflow-y: scroll;
   padding: 0px 25px;
   background-color: #fff;
   padding-bottom: 25px;

@@ -11,7 +11,6 @@ let Body = styled.div`
 `;
 
 let LogoContainer = styled.div`
-  padding: 55px 0;
   display: flex;
   /* justify-content: center; */
   align-items: center;
@@ -114,6 +113,8 @@ let TopDiv = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
+  padding: 55px 0;
+  padding-bottom: 25px;
   justify-content: space-between;
 `;
 
@@ -128,7 +129,7 @@ function ManageApp(props) {
   useEffect(function () {
     let U = new global.uponJS({
       name: appName,
-      local: true,
+      local: false,
       disableGoogleAnalytics: true,
     });
 
@@ -150,7 +151,7 @@ function ManageApp(props) {
   }, []);
 
   let mainButtons = [
-    <Button>
+    <Button key={1}>
       <Input
         multiple
         type="file"
@@ -162,10 +163,10 @@ function ManageApp(props) {
           });
         }}
       />
-      Upload Home Page
+      📃 Upload Home Page
     </Button>,
 
-    <Button>
+    <Button key={2}>
       <input
         type="file"
         multiple
@@ -181,7 +182,7 @@ function ManageApp(props) {
           });
         }}
       />
-      Upload Build Folder
+      📁 Upload Build Folder
     </Button>,
   ];
 
@@ -194,7 +195,7 @@ function ManageApp(props) {
         {U ? (
           <Buttons>
             {mainButtons}
-            <Button>
+            <Button key={3}>
               <a href={U.info.serverUrl} target="_blank">
                 🚪 Visit App
               </a>
@@ -247,7 +248,7 @@ function ManageApp(props) {
     if (!U) return "";
     if (appData.length < 1) return;
     let app = appData[0];
-    let url = U.getLogoLink(app.logo, app.name);
+    let url = app.logo ? U.getSubAppUrl(app.name) + "/" + app.logo : "";
     return (
       <LogoContainer>
         <LogoImg image={url} />

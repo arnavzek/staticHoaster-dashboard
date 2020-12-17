@@ -44,6 +44,7 @@ function UploadFiles(props) {
   let U = props.U;
 
   useEffect(function () {
+    console.log(props.event.target.files);
     if (props.type == "homePage") {
       uploadIndexFile(props.event);
     } else {
@@ -73,7 +74,9 @@ function UploadFiles(props) {
     return toReturn;
   }
 
-  function renderAndUpload(filesFromSelector, namingFunction) {
+  function renderAndUpload(e, namingFunction) {
+    let filesFromSelector = e.target.files;
+
     function setFilesState(data) {
       files = data;
       setFiles(data);
@@ -97,19 +100,17 @@ function UploadFiles(props) {
         setFilesState(newObject);
       });
     }
+
+    e.target.value = null;
   }
 
   function uploadIndexFile(event) {
-    let files = event.target.files;
-
-    renderAndUpload(files, () => {
+    renderAndUpload(event, () => {
       return "index.html";
     });
   }
 
   function uploadMainDirectory(event) {
-    let files = event.target.files;
-
     function changeRelativePath(file) {
       console.log(file);
       let path = file.webkitRelativePath;
@@ -118,7 +119,7 @@ function UploadFiles(props) {
       return dirSplit.join("/");
     }
 
-    renderAndUpload(files, changeRelativePath);
+    renderAndUpload(event, changeRelativePath);
   }
 
   return (

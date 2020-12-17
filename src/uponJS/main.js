@@ -20,7 +20,6 @@ class uponJS {
     this.socketData = { query: [], room: [] };
 
     this.utility = this.utilityFunctions();
-    this.query = this.query.bind(this);
 
     this.socketFunctions = { query: {}, room: {} };
 
@@ -101,6 +100,10 @@ class uponJS {
       this.configuration.job = "host";
     }
   }
+
+  returnThis = () => {
+    return this.info;
+  };
 
   runCloudFunction = (functionName, arg) => {
     return this.query({ $run: [functionName, arg] });
@@ -190,6 +193,7 @@ class uponJS {
   }
   changeProfilePicture = (type) => {
     return new Promise((resolve) => {
+      let U = this;
       if (!type) type = "user";
 
       let inputFileElement = document.createElement("input");
@@ -266,55 +270,10 @@ class uponJS {
     return b ? b.pop() : "";
   }
 
-  openDocumentation = () => {
-    let loading = this.loading();
-    this.query({ $giveDocumentation: "" }).then((data) => {
-      loading.kill();
-      let returnData = [{ h1: "Documentation" }];
-      for (let key in data) {
-        if (key.trim() === "upon.one") continue;
-        if (key.trim() === "What is upon.one?") continue;
-        returnData.push({
-          h3: {
-            style: `     
-            background: #ffffff00;
-            padding: 10px 30px;
-            border-radius: 10px;
-            font-weight: 400;
-            cursor: pointer;
-            width: auto;
-            color: #000000de;
-            font-size: 18px;
-            /* width: 100%; */
-            /* box-shadow: 2px 3px 8px #999999f2; */
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            text-decoration: underline;`,
-            innerHTML: key,
-            onclick: () => {
-              this.ask([
-                { h3: key },
-                {
-                  p: {
-                    style: "    white-space: pre-wrap;",
-                    innerHTML: data[key]
-                      .replace("<script>", "&lt;script&gt;")
-                      .replace("</script>", "&lt;/script&gt;"),
-                  },
-                },
-              ]);
-            },
-          },
-        });
-      }
-      console.log(returnData);
-      this.ask(returnData);
-    });
-  };
-  async query(query, adminMode) {
+  query = async (query, adminMode) => {
     if (!adminMode) adminMode = false;
 
-    let apiData = await U.post({
+    let apiData = await this.post({
       adminMode: adminMode,
       data: query,
       type: "db",
@@ -326,7 +285,7 @@ class uponJS {
     return apiData.data; //to document the first arg is data and the other is meta
 
     //on login error tell user to login and call the same function
-  }
+  };
   post = (dataTobeSent, callback) => {
     dataTobeSent.cookie = this.getUserCookie();
     dataTobeSent.developerCookie = this.getUserCookie("developer");
@@ -352,7 +311,7 @@ class uponJS {
     if (this.configuration.job !== "host")
       headerParam.credentials = "same-origin";
 
-    console.log(this.info.serverUrl, this.configuration);
+    console.log(this.info.serverUrl);
     fetch(this.info.serverUrl, {
       method: "POST",
       headers: headerParam,
@@ -373,17 +332,6 @@ class uponJS {
       });
     }
   };
-  getLogoLink = (link, appName) => {
-    if (!link) return "";
-    if (link.indexOf("http") !== -1) return link;
-    link = link.replace("./", "").replace("../", "");
-    if (link.substr(0, 1) == "/") link = link.slice(1, link.length);
-    return this.getSubAppUrl(appName) + "/" + link;
-  };
-  loadStylinator(componentName) {
-    return (document.body.innerHTML += "<stylinator-bar> </stylinator-bar>");
-  }
-
   print(data) {
     console.log(
       "%c" + data,
@@ -425,8 +373,8 @@ class uponJS {
   };
   changePassword = (msg) => {
     return new Promise((resolve) => {
-      function changePassword(event, cred) {
-        let processingRequest = this.say("just a second");
+      let changePassword = (event, cred) => {
+        let processingRequest = this.say("Just a second");
         this.post(
           {
             type: "verify_email_access",
@@ -451,13 +399,14 @@ class uponJS {
             }
           }
         );
-      }
+      };
 
       let elements = [
-        { h1: "check your email for verification code" },
+        { h1: "Check your email for verification code" },
         { h3: msg },
-        { input: { name: "username" } },
         { input: { name: "verificationCode", type: "password" } },
+        { input: { name: "username" } },
+
         { input: { name: "newPassword", type: "password" } },
         { button: { innerHTML: "Change password", onclick: changePassword } },
       ];
@@ -582,7 +531,7 @@ class uponJS {
       const state = JSON.stringify({
         appName: this.configuration.name,
         devLogin: devLogin,
-        redirect: window.location.origin,
+        redirect: window.location.href,
         redirectUri: redirectUri,
       });
 
@@ -623,7 +572,7 @@ class uponJS {
   loginWithUponDotOne = (devLogin) => {
     return new Promise((loginCompleted) => {
       let processLogin = (event, cred) => {
-        let saying = this.say("just a second " + this.caps(cred.username));
+        let saying = this.say("Just a second " + this.caps(cred.username));
 
         this.post(
           {
@@ -674,7 +623,8 @@ class uponJS {
           this.configuration.name !== "auth"
         )
           return (window.location.href =
-            this.getSubAppUrl("auth") + `/?appName=${this.configuration.name}`);
+            this.getSubAppUrl("auth") +
+            `/?appName=${this.configuration.name}&redirectLink=${window.location.href}`);
 
       //ready state interactive: images are loading
       //complete: all loaded
@@ -707,7 +657,7 @@ class uponJS {
   signUp(devLogin) {
     return new Promise((resolve) => {
       function signUp(event, cred) {
-        let signingup = U.say(" just a second...");
+        let signingup = U.say(" Just a second...");
 
         if (cred.username) cred.username = cred.username.toLowerCase();
 
@@ -753,7 +703,7 @@ class uponJS {
   forgotPassword(devLogin) {
     return new Promise((resolve) => {
       function sendVerificationCode(event, cred) {
-        let notifySending = U.say("just a second");
+        let notifySending = U.say("Just a second");
         U.post(
           {
             type: "forgot_password",

@@ -30,7 +30,7 @@ let IntroContainer = styled.div`
   flex-direction: column;
   display: flex;
   margin-top: 50px;
-  padding: 25px;
+  padding: 0;
   @media (min-width: 768px) {
   }
 `;
@@ -47,7 +47,7 @@ let IntroContainerText = styled.div`
 let GrassImg1 = styled.img`
   height: 450px;
   margin-top: 10px;
-  margin-bottom: -112px;
+  margin-bottom: -107px;
   margin-right: 30px;
   width: 450px;
 `;

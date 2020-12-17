@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WelcomeBoad from "../components/welcomeBoad";
 import Documentation from "../components/documentation";
 import styled from "styled-components";
+import Dashboard from "./dashboard";
 let Features = styled.div`
   display: flex;
   flex-direction: row;
@@ -28,8 +29,8 @@ let Feature = styled.div`
 let Tik = styled.div`
   background: #111;
   padding: 10px;
-  height: 20px;
-  width: 20px;
+  height: 15px;
+  width: 15px;
   color: #fff;
   justify-content: center;
   align-items: center;
@@ -37,7 +38,16 @@ let Tik = styled.div`
   display: flex;
 `;
 
-function Home() {
+function Home(props) {
+  const [loggedIn, setStatus] = useState(false);
+  let U = props.U;
+  useEffect(function () {
+    U.getUser("developer").then((data) => {
+      if (data) return setStatus(true);
+    });
+  }, []);
+
+  if (loggedIn) return <Dashboard U={props.U} />;
   return (
     <div className="App">
       <WelcomeBoad />
