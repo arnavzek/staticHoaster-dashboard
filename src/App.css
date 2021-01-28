@@ -15,7 +15,11 @@ table {
 }
 
 body {
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100vh;
+  width:100vw;
+  margin:0;
+  padding:0;
 }
 
 .invisibleInput {

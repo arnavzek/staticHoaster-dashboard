@@ -4,6 +4,7 @@ body {
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow:hidden;
   -moz-osx-font-smoothing: grayscale;
 }
 
@@ -11,4 +12,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
   font-size: 14px;
+  display: inline-block;
+  background: #2f3129;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #d7b846;
+  margin: 5px 0;
 }

@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.2.2",
     "brace": "^0.11.1",
     "browser-image-compression": "^1.0.13",
+    "copy-to-clipboard": "^3.3.1",
     "lit-element": "^2.4.0",
     "node-cmd": "^4.0.0",
     "react": "^17.0.1",

@@ -1,7 +1,5 @@
 import React from "react";
-
 import styled from "styled-components";
-import theme from "../theme.js";
 
 let ContentContainer = styled.div`
   position: absolute;
@@ -12,7 +10,8 @@ let ContentContainer = styled.div`
   top: 50px;
   border-radius: 5px;
   max-height: 80vh;
-  overflow-y: scroll;
+  color: #222;
+  overflow: hidden;
   padding: 0px 25px;
   background-color: #fff;
   padding-bottom: 25px;
@@ -26,7 +25,6 @@ let AbsoluteDiv = styled.div`
   z-index: 55;
   height: 100vh;
   width: 100vw;
-  font-family: ${theme.fontFamily};
 `;
 
 let H1 = styled.h1`

@@ -49,7 +49,8 @@ function Console(props) {
   function refresh() {
     if (!U) return;
 
-    U.query({ $readLogs: 10 }, true)
+    U.api
+      .get("logs")
       .then((data) => {
         setLogs(data);
       })

@@ -1,76 +1,101 @@
-import React, { useEffect, useState } from "react";
-import WelcomeBoad from "../components/welcomeBoad";
-import Documentation from "../components/documentation";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import Dashboard from "./dashboard";
-let Features = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 25px;
-  border-top: 3px solid;
-  flex-wrap: wrap;
-  padding-top: 50px;
-  justify-content: space-around;
-
-  @media (max-width: 768px) {
-    justify-content: flex-start;
-    padding-left: 25px;
-  }
+import ReactOverlay from "../lib/reactOverlay";
+import Context from "../Context";
+import initializeUploader from "../components/FileUploader";
+import ProjectsArea from "../components/ProjectsArea";
+let PrimaryButon = styled.button`
+  cursor: pointer;
+  border-radius: 200px;
+  background: linear-gradient(45deg, #ffeb3b, #28fd57);
+  border: none;
+  font-size: 15px;
+  padding: 15px 34px;
 `;
 
-let Feature = styled.div`
+let Button = styled.button`
+  cursor: pointer;
+  border-radius: 200px;
+  background: transparent;
+  border: 1px solid;
+  color: #28fd57;
+  font-size: 15px;
+  padding: 15px 34px;
+`;
+
+let Body = styled.div``;
+
+let Center = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 25px;
+  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  height: 58vh;
 `;
 
-let Tik = styled.div`
-  background: #111;
-  padding: 10px;
-  height: 15px;
-  width: 15px;
-  color: #fff;
+let Span = styled.span`
+  color: #999;
+`;
+
+let Heading = styled.h1`
+  font-size: 64px;
+  font-weight: 100;
+`;
+
+let Options = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 25px;
   justify-content: center;
   align-items: center;
-  border-radius: 50px;
-  display: flex;
 `;
 
-function Home(props) {
-  const [loggedIn, setStatus] = useState(false);
-  let U = props.U;
-  useEffect(function () {
-    U.getUser("developer").then((data) => {
-      if (data) return setStatus(true);
-    });
-  }, []);
+function Dashboadrd() {
+  let { U, Upon } = useContext(Context);
+  let [dialogData, setDialogData] = useState(null);
+  const [apps, updateApps] = useState(null);
 
-  if (loggedIn) return <Dashboard U={props.U} />;
+  let hostingFuntion = {
+    homepage: () => {
+      host("homePage");
+    },
+    folder: () => {
+      host("buildFolder");
+    },
+  };
+
+  useEffect(refresh, []);
+
   return (
-    <div className="App">
-      <WelcomeBoad />
-      <Features>
-        <Feature>
-          <Tik>✔</Tik> Easy Hosting
-        </Feature>
-        <Feature>
-          <Tik>✔</Tik> User authentication
-        </Feature>
-        <Feature>
-          <Tik>✔</Tik> noSQL database
-        </Feature>
-        <Feature>
-          <Tik>✔</Tik> Binary upload
-        </Feature>
-        <Feature>
-          <Tik>✔</Tik> Server side Rendering with puppetier
-        </Feature>
-      </Features>
-      <Documentation />
-    </div>
+    <Body>
+      <ReactOverlay data={dialogData} setData={setDialogData}></ReactOverlay>
+      <Center>
+        <Heading>Hosting made easy</Heading>
+        <Options>
+          <PrimaryButon onClick={hostingFuntion.homepage} primary="true">
+            Host homepage (HTML file)
+          </PrimaryButon>
+          <Span>OR</Span>
+          <Button onClick={hostingFuntion.folder}>Host project folder</Button>
+        </Options>
+      </Center>
+
+      <ProjectsArea apps={apps} host={host} />
+    </Body>
   );
+
+  function refresh() {
+    U.getLoggedInUser().then((data) => {
+      if (!data) return;
+      U.api.get("apps/?owner=" + data.id).then(updateApps);
+    });
+  }
+
+  function host(type, appName) {
+    if (!U.getUserCookie()) return U.login();
+
+    initializeUploader({ setDialogData, Upon, type, appName, U });
+  }
 }
 
-export default Home;
+export default Dashboadrd;

@@ -1,59 +1,51 @@
-import React from "react";
+import React, { useState, useEffect, useContext, Fragment } from "react";
 import logo from "../media/logo.svg";
 import styled from "styled-components";
 import theme from "../theme.js";
 import { Link } from "react-router-dom";
+import Context from "../Context";
+import UserButton from "./UserButton";
 let HeadRow = styled.div`
   flex-direction: row;
   justify-content: space-between;
   gap: 12px;
   flex: 1;
   display: flex;
-  margin: 25px;
+
   justify-content: flex-end;
   gap: 45px;
-
-  @media (max-width: 768px) {
-    margin: 20px 5px;
-    justify-content: space-between;
-    gap: 0;
-  }
 `;
 
 let HeadRowButton = styled.button`
   border: none;
   background: transparent;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 100;
   cursor: pointer;
-  color: #444;
+  color: #fff;
   font-size: 15px;
   font-family: ${theme.fontFamily};
 `;
 
 let LogoText = styled.h3`
   display: flex;
-  font-size: 25px;
-  margin: 0;
+  font-size: 15px;
+  margin: 0px;
   font-weight: 700;
 
+  color: ${(props) => (props.loggedIn ? "#111" : "#fff")};
   font-family: ${theme.fontFamily};
 `;
 
 let LogoImg = styled.img`
-  height: 30px;
-  margin: 0;
-  margin-left: 30px;
-  margin-right: 10px;
-
+  height: 20px;
+  margin: 0px 10px 0px 30px;
+  margin-left: 0;
   display: flex;
-
-  width: 30px;
-
-  @media (max-width: 768px) {
-    /* padding: 20px 0; */
-    margin-left: 15px;
-  }
+  width: 20px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #28fd57;
 `;
 
 let LogoContainer = styled.div`
@@ -65,8 +57,6 @@ let LogoContainer = styled.div`
 
   @media (max-width: 768px) {
     width: 100%;
-    /* padding: 20px 0; */
-
     margin-bottom: 40px;
   }
 `;
@@ -75,40 +65,42 @@ let Div = styled.div`
   justify-content: space-between;
   display: flex;
   padding: 0;
-  background: #9999991c;
+
   flex-direction: row;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  padding: 0 110px;
-  @media (max-width: 768px) {
-    background: transparent;
-    flex-wrap: wrap;
-  }
+  border-radius: 0;
+  margin-bottom: 0;
 `;
 
 function NavBar(props) {
-  let U = props.U;
+  let { U } = useContext(Context);
+
+  let loggedIn = U.getUserCookie();
 
   return (
     <Div>
       <Link key={1} to="/">
         <LogoContainer>
           <LogoImg src={logo} className="App-logo" alt="logo" />
-          <LogoText> upon.one</LogoText>{" "}
+          <LogoText> UPON.ONE</LogoText>
         </LogoContainer>
       </Link>
       <HeadRow>
-        <HeadRowButton key={1}>
-          <Link to="/docs">Docs</Link>
-        </HeadRowButton>
-        <HeadRowButton key={2}>
-          <Link to="/dashboard">Dashboard</Link>
-        </HeadRowButton>
-        <HeadRowButton key={3}>
+        <HeadRowButton key={3} loggedIn={loggedIn}>
           <a target="_blank" href="https://discord.gg/s8ZysABauT">
-            Contact on Discord
+            Hangout on Discord
           </a>
         </HeadRowButton>
+        {!loggedIn ? (
+          <Fragment>
+            <HeadRowButton key={3} loggedIn={loggedIn}>
+              <a onClick={U.login}>Login / Sign up</a>
+            </HeadRowButton>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <UserButton></UserButton>
+          </Fragment>
+        )}
       </HeadRow>
     </Div>
   );

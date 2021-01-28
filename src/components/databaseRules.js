@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import overlay from "../lib/overlay";
 import styled from "styled-components";
 import theme from "../theme.js";
 import AceEditor from "react-ace";
@@ -61,7 +61,7 @@ function BackendCodeEditor(props) {
   );
 
   function refresh() {
-    U.query({ $readDBconfig: "" }).then((data) => {
+    U.api.get("database-config").then((data) => {
       if (!data) return;
       console.log(data.app, U.configuration.name, U.info.serverUrl);
       setbBckendCode(data.backendCode);
@@ -71,11 +71,11 @@ function BackendCodeEditor(props) {
   function saveBackendCode() {
     U.configuration.backendCode = backendCode;
 
-    let loading = U.say("Updating Backend...");
+    let loading = overlay.alert("Updating Backend...");
 
-    U.query({ $hostBackend: U.configuration }).then(() => {
+    U.api.post("backend-code", U.configuration).then(() => {
       loading.kill();
-      U.say("Backend Updated 😊");
+      overlay.alert("Backend Updated 😊");
     });
   }
 }

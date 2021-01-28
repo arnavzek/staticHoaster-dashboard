@@ -1,47 +1,41 @@
 import "./App.css";
 import Home from "./screens/home";
-import Dashboard from "./screens/dashboard";
-import ManageApp from "./screens/manageApp";
-import U from "./uponJS/main.js";
-import NavBar from "./components/navBar";
-import Documentation from "./components/documentation";
+import { U, Upon } from "./lib/upon.js";
+import React, { useReducer } from "react";
+import reducer from "./reducer";
+import Context from "./Context";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import NavBar from "./components/NavBar";
 import styled from "styled-components";
-//import ReactGA from "react-ga";
-import { useEffect } from "react";
-
-//ReactGA.initialize("UA-166276820-1");
-U.settings({ name: "www", local: false });
 
 let Body = styled.div`
-  padding: 55px 150px;
+  background: #222;
+  margin: 0;
+  height: 100vh;
+  overflow-y: scroll;
+  color: #fff;
 
-  @media (max-width: 768px) {
-    padding: 10px;
-  }
+  padding: 20px 50px;
 `;
+//ReactGA.initialize("UA-166276820-1");
+U.settings({ name: "www", local: true });
 
 function App() {
+  const [state, dispatch] = useReducer(reducer, { loggedIn: false });
+
   return (
-    <Router>
-      <NavBar U={U} />
-      <Body>
-        <Switch>
-          <Route path="/dashboard/:appName">
-            <ManageApp U={U} />
-          </Route>
-          <Route path="/dashboard">
-            <Dashboard U={U} />
-          </Route>
-          <Route path="/docs">
-            <Documentation />
-          </Route>
-          <Route path="/">
-            <Home U={U} />
-          </Route>
-        </Switch>
-      </Body>
-    </Router>
+    <Body>
+      <Context.Provider value={{ state, dispatch, Upon, U }}>
+        <Router>
+          <NavBar></NavBar>
+          <Switch>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </Router>
+      </Context.Provider>
+    </Body>
   );
 }
 
