@@ -24,7 +24,15 @@ let A = styled.a`
 function FileUploader({ U, filesFromSelector, type }) {
   let [files, setFiles] = useState({});
   let [errorMessage, setErrorMessage] = useState(null);
+  let [counter, setCounter] = useState(0);
   useEffect(function () {
+    setInterval(() => {
+      if (!window.percentage) return;
+      if (counter >= window.percentage) return;
+      counter = counter + 1;
+      setCounter(counter);
+    }, 300);
+
     if (type == "homePage") {
       uploadIndexFile();
     } else if (type == "files") {
@@ -112,6 +120,8 @@ function FileUploader({ U, filesFromSelector, type }) {
   let { totalFiles, filesUploaded } = analyze();
   if (totalFiles == 0) return [];
   if (errorMessage) return <Div>{errorMessage}</Div>;
+
+  window.percentage = Math.round((filesUploaded / totalFiles) * 100);
   return (
     <Div>
       {totalFiles == filesUploaded ? (
@@ -119,9 +129,7 @@ function FileUploader({ U, filesFromSelector, type }) {
           Visit Site
         </A>
       ) : (
-        <Percentage>
-          {Math.round((filesUploaded / totalFiles) * 100) + "%"}
-        </Percentage>
+        <Percentage>{counter + "%"}</Percentage>
       )}
     </Div>
   );

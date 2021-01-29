@@ -1,4 +1,4 @@
-class Upon {
+export class Upon {
   constructor(configuration) {
     this.info = {}; //to do differentiation
 
@@ -403,9 +403,8 @@ class Upon {
   };
 }
 
-let U = new Upon();
+export let U = new Upon();
 global.U = U;
 global.Upon = Upon;
-module.exports = { U, Upon };
 
 //send auth header

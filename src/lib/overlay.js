@@ -760,8 +760,4 @@ let overlay = new (class {
   };
 })();
 
-if (module) {
-  module.exports = overlay;
-} else {
-  window.overlay = overlay;
-}
+export default overlay;
