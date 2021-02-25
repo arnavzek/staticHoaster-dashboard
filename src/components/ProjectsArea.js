@@ -3,6 +3,7 @@ import Context from "../Context";
 import Styled from "styled-components";
 import Overlay from "../lib/overlay";
 import ProjectLogo from "./ProjectLogo.js";
+
 let Button = Styled.button`
     border-radius: 500px;
     border: none;
@@ -43,6 +44,9 @@ let Buttons = Styled.div`
 let H1 = Styled.h1`
     font-weight: 100;
     color: #999;
+    @media (max-width:800px){
+      margin:0;
+    }
 `;
 
 let Header = Styled.div`
@@ -50,6 +54,10 @@ let Header = Styled.div`
   flex:1;
   flex-direction:row;
   justify-content:space-between;
+  @media (max-width:800px){
+    margin:0;
+    flex-direction:column;
+  }
 `;
 
 let Data = Styled.div`
@@ -58,10 +66,17 @@ let Data = Styled.div`
   opacity:0.5;
   gap:15px;
   align-items:center;
+
+  @media (max-width:800px){
+      margin-top:10px;
+      margin-bottom:50px;
+  }
 `;
 
 let Span = Styled.div`
-
+  @media (max-width:800px){
+    font-size:10px;
+  }
 `;
 
 let Content = Styled.div`
@@ -110,7 +125,7 @@ function convertBytesToMB(bytes) {
   return Math.round((bytes / (1000 * 1024)) * 100) / 100;
 }
 
-function ProjectsArea({ apps, host }) {
+function ProjectsArea({ apps, host, refresh }) {
   let { U, Upon } = useContext(Context);
   useEffect(() => {
     if (U.getUserCookie()) {
@@ -131,8 +146,8 @@ function ProjectsArea({ apps, host }) {
       <Header>
         <H1>Projects</H1>
         <Data>
-          <Span>Space Used {convertBytesToMB(spaceUsed)}/20MB</Span>
-          <Span>Bandwidth Used {convertBytesToMB(bandWidthUsed)}/100MB</Span>
+          <Span>Space Used {convertBytesToMB(spaceUsed)}/100MB</Span>
+          <Span>Bandwidth Used {convertBytesToMB(bandWidthUsed)}/200MB</Span>
         </Data>
       </Header>
 
@@ -187,6 +202,7 @@ function ProjectsArea({ apps, host }) {
         Overlay.form(elements);
 
         function makeRequest(event, data) {
+          Overlay.loading();
           U.api
             .post("change-app-name", {
               appName: app.appName,
@@ -194,7 +210,8 @@ function ProjectsArea({ apps, host }) {
             })
             .then(() => {
               Overlay.kill("form");
-              window.location.reload();
+              refresh();
+              Overlay.alert("App Name changed");
             })
             .catch((e) => {
               Overlay.alert(e.message);
@@ -203,20 +220,20 @@ function ProjectsArea({ apps, host }) {
       }
 
       function deleteApp() {
+        Overlay.loading();
+
         let newU = new Upon({
           name: app.appName,
-          local: true,
+          local: U.configuration.local,
           disableGoogleAnalytics: true,
         });
 
-        Overlay.loading();
-
         newU.api
-          .post("delete-app", {
-            appName: app.appName,
-          })
+          .post("delete-app")
           .then((data) => {
+            Overlay.kill("form");
             Overlay.alert("Deleted " + data.filesDeleted + " files");
+            refresh();
           })
           .catch((e) => {
             Overlay.alert(e.message);

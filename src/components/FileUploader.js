@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import styled from "styled-components";
 
@@ -21,7 +21,7 @@ let A = styled.a`
   color: #fff;
 `;
 
-function FileUploader({ U, filesFromSelector, type }) {
+function FileUploader({ U, filesFromSelector, type, callback }) {
   let [files, setFiles] = useState({});
   let [errorMessage, setErrorMessage] = useState(null);
   let [counter, setCounter] = useState(0);
@@ -31,7 +31,7 @@ function FileUploader({ U, filesFromSelector, type }) {
       if (counter >= window.percentage) return;
       counter = counter + 1;
       setCounter(counter);
-    }, 300);
+    }, 100);
 
     if (type == "homePage") {
       uploadIndexFile();
@@ -46,7 +46,7 @@ function FileUploader({ U, filesFromSelector, type }) {
 
   async function uploadHostFiles(file, fileName) {
     try {
-      return await U.utility.upload(file, "hostingUpload", fileName);
+      return await U.upload(file, "hostingUpload", fileName);
     } catch (e) {
       setErrorMessage(e.message);
     }
@@ -122,6 +122,8 @@ function FileUploader({ U, filesFromSelector, type }) {
   if (errorMessage) return <Div>{errorMessage}</Div>;
 
   window.percentage = Math.round((filesUploaded / totalFiles) * 100);
+
+  if (totalFiles == filesUploaded) callback();
   return (
     <Div>
       {totalFiles == filesUploaded ? (
@@ -136,49 +138,52 @@ function FileUploader({ U, filesFromSelector, type }) {
 }
 
 function initializeUploader({ setDialogData, Upon, type, appName, U }) {
-  let fileInput = document.createElement("input");
-  fileInput.setAttribute("type", "file");
-  fileInput.addEventListener("change", doUpload);
-  fileInput.setAttribute("multiple", true);
-  if (type == "buildFolder") fileInput.setAttribute("webkitdirectory", true);
+  return new Promise((callback) => {
+    let fileInput = document.createElement("input");
+    fileInput.setAttribute("type", "file");
+    fileInput.addEventListener("change", doUpload);
+    fileInput.setAttribute("multiple", true);
+    if (type == "buildFolder") fileInput.setAttribute("webkitdirectory", true);
 
-  fileInput.click();
+    fileInput.click();
 
-  function doUpload(event) {
-    let filesFromSelector = event.target.files;
+    function doUpload(event) {
+      let filesFromSelector = event.target.files;
 
-    if (!appName) return createApp().then(engageUpload);
-    engageUpload(appName);
-    function engageUpload(appName) {
-      let newU = new Upon({
-        name: appName,
-        local: true,
-        disableGoogleAnalytics: true,
-      });
+      if (!appName) return createApp().then(engageUpload);
+      engageUpload(appName);
+      function engageUpload(appName) {
+        let newU = new Upon({
+          name: appName,
+          local: U.configuration.local,
+          disableGoogleAnalytics: true,
+        });
 
-      setDialogData({
-        message: "🚀 Host",
-        children: (
-          <FileUploader
-            filesFromSelector={filesFromSelector}
-            U={newU}
-            type={type}
-          />
-        ),
+        setDialogData({
+          message: "🚀 Host",
+          children: (
+            <FileUploader
+              filesFromSelector={filesFromSelector}
+              U={newU}
+              type={type}
+              callback={callback}
+            />
+          ),
+        });
+      }
+    }
+
+    function createApp() {
+      return new Promise((resolve) => {
+        U.api
+          .post("app")
+          .then((data) => {
+            resolve(data.appName);
+          })
+          .catch(console.error);
       });
     }
-  }
-
-  function createApp() {
-    return new Promise((resolve) => {
-      U.api
-        .post("app")
-        .then((data) => {
-          resolve(data.appName);
-        })
-        .catch(console.error);
-    });
-  }
+  });
 }
 
 export default initializeUploader;

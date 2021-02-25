@@ -15,6 +15,11 @@ let ContentContainer = styled.div`
   padding: 0px 25px;
   background-color: #fff;
   padding-bottom: 25px;
+  @media (max-width: 800px) {
+    width: 90%;
+    left: 5%;
+    box-sizing: border-box;
+  }
 `;
 
 let AbsoluteDiv = styled.div`
@@ -27,7 +32,7 @@ let AbsoluteDiv = styled.div`
   width: 100vw;
 `;
 
-let H1 = styled.h1`
+let H1 = styled.h2`
   margin: 0;
   padding: 0;
   text-align: left;

@@ -5,36 +5,44 @@ import theme from "../theme.js";
 import { Link } from "react-router-dom";
 import Context from "../Context";
 import UserButton from "./UserButton";
-let HeadRow = styled.div`
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 12px;
-  flex: 1;
-  display: flex;
+import { HiMenu } from "react-icons/hi";
+import overlay from "../lib/overlay";
 
-  justify-content: flex-end;
-  gap: 45px;
+let MobileOptions = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0.8;
+  justify-content: flex-start;
+  width: 200px;
 `;
 
 let HeadRowButton = styled.button`
   border: none;
-  background: transparent;
+  background: #00000069;
+  width: 200px;
   text-decoration: none;
-  font-weight: 100;
+  font-weight: 300;
   cursor: pointer;
   color: #fff;
   font-size: 15px;
-  font-family: ${theme.fontFamily};
+  border-radius: 5px;
+  font-family: roboto;
+  padding: 15px;
+
+  @media (max-width: 800px) {
+    display: none;
+  }
 `;
 
 let LogoText = styled.h3`
   display: flex;
-  font-size: 15px;
+  font-size: 28px;
   margin: 0px;
-  font-weight: 700;
+  font-weight: 100;
 
   color: ${(props) => (props.loggedIn ? "#111" : "#fff")};
-  font-family: ${theme.fontFamily};
+  font-family: Bebas Neue;
 `;
 
 let LogoImg = styled.img`
@@ -54,56 +62,97 @@ let LogoContainer = styled.div`
   flex-direction: row;
   height: 100%;
   align-items: center;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    margin-bottom: 40px;
-  }
 `;
 
 let Div = styled.div`
   justify-content: space-between;
   display: flex;
   padding: 0;
-
+  margin-top: 15px;
   flex-direction: row;
   border-radius: 0;
-  margin-bottom: 0;
+  margin-bottom: 100px;
 `;
 
-function NavBar(props) {
+function NavBar() {
   let { U } = useContext(Context);
 
   let loggedIn = U.getUserCookie();
 
   return (
     <Div>
+      <MobileOptions onClick={moreOptions}>
+        <HiMenu size={"40px"} />{" "}
+      </MobileOptions>
+
       <Link key={1} to="/">
         <LogoContainer>
           <LogoImg src={logo} className="App-logo" alt="logo" />
           <LogoText> UPON.ONE</LogoText>
         </LogoContainer>
       </Link>
-      <HeadRow>
-        <HeadRowButton key={3} loggedIn={loggedIn}>
-          <a target="_blank" href="https://discord.gg/s8ZysABauT">
-            Hangout on Discord
-          </a>
-        </HeadRowButton>
-        {!loggedIn ? (
-          <Fragment>
-            <HeadRowButton key={3} loggedIn={loggedIn}>
-              <a onClick={U.login}>Login / Sign up</a>
-            </HeadRowButton>
-          </Fragment>
-        ) : (
-          <Fragment>
-            <UserButton></UserButton>
-          </Fragment>
-        )}
-      </HeadRow>
+
+      {!loggedIn ? (
+        <Fragment>
+          <HeadRowButton key={3} loggedIn={loggedIn}>
+            <a onClick={U.login}>Register / Login</a>
+          </HeadRowButton>
+        </Fragment>
+      ) : (
+        <Fragment>
+          <UserButton showUserOptions={showUserOptions}></UserButton>
+        </Fragment>
+      )}
     </Div>
   );
+
+  function redirectAudience() {
+    window.location = "https://arnav.upon.one";
+  }
+
+  function showUserOptions() {
+    let elements = [
+      { h3: "Options" },
+      { button: { innerHTML: "About Developer", onclick: redirectAudience } },
+      {
+        button: {
+          innerHTML: "Change Profile Picture",
+          onclick: U.changeProfilePicture,
+        },
+      },
+      {
+        button: {
+          innerHTML: "Logout",
+          onclick: U.logout,
+        },
+      },
+    ];
+
+    overlay.form(elements);
+  }
+
+  function openDiscord() {
+    window.open("https://discord.gg/s8ZysABauT");
+  }
+
+  function moreOptions() {
+    let elements = [
+      { h3: "Options" },
+      { button: { innerHTML: "Open Discord", onclick: openDiscord } },
+    ];
+
+    if (!loggedIn) {
+      elements.push({
+        button: { innerHTML: "Login / Sign up", onclick: U.login },
+      });
+    } else {
+      elements.push({
+        button: { innerHTML: "More", onclick: showUserOptions },
+      });
+    }
+
+    overlay.form(elements);
+  }
 }
 
 export default NavBar;

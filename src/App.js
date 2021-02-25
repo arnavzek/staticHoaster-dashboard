@@ -14,9 +14,13 @@ let Body = styled.div`
   height: 100vh;
   overflow-y: scroll;
   color: #fff;
-
-  padding: 20px 50px;
+  box-sizing: border-box;
+  padding: 20px;
+  @media (min-width: 800px) {
+    padding: 20px 50px;
+  }
 `;
+
 //ReactGA.initialize("UA-166276820-1");
 U.settings({ name: "www", local: true });
 

@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import Context from "../Context";
 import Styled from "styled-components";
-import overlay from "../lib/overlay";
 
 let Div = Styled.div`
     padding: 5px;
@@ -27,9 +26,13 @@ let Span = Styled.div`
 justify-content:center;
 align-items:center;
 margin:0 15px;
+font-size: 10px;
+@media (min-width: 800px) {
+    font-size: 15px;
+  }
 `;
 
-function UserButton(props) {
+function UserButton({ showUserOptions }) {
   let [userData, setUserData] = useState(null);
   let { U } = useContext(Context);
 
@@ -40,36 +43,11 @@ function UserButton(props) {
   if (!userData) return [];
 
   return (
-    <Div onClick={showOptions}>
+    <Div onClick={showUserOptions}>
       <Img src={U.getProfilePicture(userData.id)} />
       <Span>{U.caps(userData.name)}</Span>
     </Div>
   );
-
-  function redirectAudience() {
-    window.location = "https://arnav.upon.one";
-  }
-
-  function showOptions() {
-    let elements = [
-      { h3: "Options" },
-      { button: { innerHTML: "About Developer", onclick: redirectAudience } },
-      {
-        button: {
-          innerHTML: "Change Profile Picture",
-          onclick: U.changeProfilePicture,
-        },
-      },
-      {
-        button: {
-          innerHTML: "Logout",
-          onclick: U.logout,
-        },
-      },
-    ];
-
-    overlay.form(elements);
-  }
 }
 
 export default UserButton;

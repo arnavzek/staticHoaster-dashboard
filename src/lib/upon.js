@@ -13,11 +13,7 @@ export class Upon {
     this.listen_callbacks = {};
     this.socket = {};
     this.socketData = { query: [], room: [] };
-
-    this.utility = this.utilityFunctions();
-
     this.socketFunctions = { query: {}, room: {} };
-
     this.receivingStatus = false;
     this.loginCallback = null;
 
@@ -171,21 +167,20 @@ export class Upon {
   };
 
   updateServerLink = () => {
-    let protocol = "https";
-
     if (
       window.location.host.indexOf("localhost.com:8080") !== -1 ||
-      this.configuration.local === true
+      this.configuration.local
     ) {
       this.info.host = "localhost.com";
       this.info.port = 8080;
-      protocol = "http";
     }
 
     let portString = this.info.port === 80 ? "" : ":" + this.info.port;
 
     this.info.serverUrl =
-      `${protocol}://${this.configuration.name}.` + this.info.host + portString;
+      `${window.location.protocol}//${this.configuration.name}.` +
+      this.info.host +
+      portString;
   };
 
   query = async (route, body, requestType) => {
@@ -216,12 +211,6 @@ export class Upon {
     return jsonData.data;
   };
 
-  print(data) {
-    console.log(
-      "%c" + data,
-      `color: Green; background-color: LightGreen; padding: 2px 5px; border-radius: ${U.borderRadius};`
-    ); //type of print: error, warning, greeting
-  }
   random() {
     return (
       Math.random().toString(36).substring(2, 15) +
@@ -229,14 +218,14 @@ export class Upon {
     );
   }
 
-  logout() {
+  logout = () => {
     let type = "user";
     localStorage.removeItem(type);
     localStorage.removeItem(type + "-cookie");
     window.location.href =
-      U.getAppUrl("auth") +
+      this.getAppUrl("auth") +
       `/logout/?logout=true&redirectLink=${window.location.origin}`;
-  }
+  };
 
   getLoggedInUser = () => {
     return new Promise((resolve) => {
@@ -342,68 +331,49 @@ export class Upon {
     }
     return paramObject[property];
   }
-  utilityFunctions = () => {
-    let U = this;
-    return new (class {
-      upload(file, bucketName, originalFileName, attribute) {
-        return new Promise((resolve, reject) => {
-          let form = new FormData();
+  upload = async (file, bucketName, originalFileName, attribute = {}) => {
+    let form = new FormData();
 
-          if (originalFileName)
-            form.append("originalFileName", originalFileName); //for replacing
-          form.append("bucket", bucketName);
+    if (originalFileName) form.append("originalFileName", originalFileName); //for replacing
+    form.append("bucket", bucketName);
 
-          if (!attribute) attribute = {};
-          for (let key in attribute) {
-            form.append(key, attribute[key]);
-          }
-          //if originalFileName is undefined it is automatically assigned if file has name
-          //we need originalFileName for finding extension
-          //originalFileName serves two pourpose, tell us the file name that needs to be replaced
-          //if file doesn't needs to be replaced originalFileName gives us the extension for generating new name
-          //on the server side the originalFileName in the form data is for declaring the file which needs to be replaced
-          // on the server side the file.filename is for finding extension
-          //file.filename is set automatically by the browser if we don't overwrite them
-          //but when we create blob (in case of hosting upload) it does not happens automatically
+    for (let key in attribute) {
+      form.append(key, attribute[key]);
+    }
 
-          //if originalFileName is undefined it is automatically extracted from file.filename by multer
-          if (file.name) originalFileName = file.name;
+    //originalFileName is for declaring the file which needs to be replaced
+    //on the server side the file.filename is for finding extension
+    //file.filename is set automatically by the browser if we don't overwrite them
+    //but when we create blob (in case of hosting upload) it does not happens automatically
+    //if originalFileName is undefined it is automatically extracted from file.filename by multer
 
-          form.append("file", file, originalFileName); //if it was appended before the other appends then req.body will not be processed instantly
+    let nameUsedForExtension = originalFileName ? originalFileName : file.name;
+    form.append("file", file, nameUsedForExtension); //if it was appended before the other appends then req.body will not be processed instantly
 
-          let endPoint = "/upload";
+    let endPoint = "/upload";
+    if (bucketName === "profilePicture") endPoint = "/uploadProfilePicture";
+    if (bucketName === "hostingUpload") endPoint = "/hostingUpload";
 
-          if (bucketName === "profilePicture")
-            endPoint = "/uploadProfilePicture";
+    let headerParam = {
+      authorization: this.getUserCookie()
+        ? "Bearer " + this.getUserCookie()
+        : "",
+    };
 
-          if (bucketName === "hostingUpload") endPoint = "/hostingUpload";
-          let headerParam = {
-            authorization: U.getUserCookie()
-              ? "Bearer " + U.getUserCookie()
-              : "",
-          };
-          fetch(U.info.serverUrl + endPoint, {
-            method: "POST",
-            body: form,
-            headers: headerParam,
-          }).then((response) =>
-            response.json().then((postData) => {
-              if (postData.error) return reject({ message: postData.error });
-              resolve(postData);
-            })
-          );
-        });
-      }
-    })();
-  };
-  upload = async (file, bucket, originalFileName) => {
-    let url = await this.utility.upload(file, bucket, originalFileName);
-    if (url.error) throw Error(url.error);
-    return url;
+    let response = await fetch(this.info.serverUrl + endPoint, {
+      method: "POST",
+      body: form,
+      headers: headerParam,
+    });
+
+    let postData = await response.json();
+    if (postData.error) throw Error(postData.error);
+    return postData.data;
   };
 }
 
 export let U = new Upon();
+
 global.U = U;
 global.Upon = Upon;
 
