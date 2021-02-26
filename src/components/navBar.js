@@ -37,7 +37,7 @@ let HeadRowButton = styled.button`
 
 let LogoText = styled.h3`
   display: flex;
-  font-size: 28px;
+  font-size: 35px;
   margin: 0px;
   font-weight: 100;
 

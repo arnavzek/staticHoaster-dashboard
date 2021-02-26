@@ -5,6 +5,7 @@ import Context from "../Context";
 import initializeUploader from "../components/FileUploader";
 import ProjectsArea from "../components/ProjectsArea";
 import WhyUs from "../components/WhyUs";
+import Examples from "../components/Examples";
 let PrimaryButon = styled.button`
   cursor: pointer;
   border-radius: 200px;
@@ -46,7 +47,7 @@ let Center = styled.div`
 `;
 
 let Heading = styled.h1`
-  font-size: 34px;
+  font-size: 40px;
   font-weight: 100;
   opacity: 0.5;
   font-family: Sacramento;
@@ -97,7 +98,7 @@ function Dashboadrd() {
     <Body>
       <ReactOverlay data={dialogData} setData={setDialogData}></ReactOverlay>
       <Center>
-        <Heading>Web Dev Platform</Heading>
+        <Heading>platofrm for creating the next big thing</Heading>
         <Options>
           <PrimaryButon onClick={hostingFuntion.homepage} primary="true">
             Design
@@ -108,6 +109,7 @@ function Dashboadrd() {
         </Options>
       </Center>
       <WhyUs />
+      <Examples />
       <ProjectsArea refresh={refresh} apps={apps} host={host} />
     </Body>
   );

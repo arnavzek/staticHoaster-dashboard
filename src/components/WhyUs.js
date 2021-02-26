@@ -12,9 +12,7 @@ let Content = Styled.div`
     flex-wrap:wrap;
     
     justify-content: space-between;
-    @media (max-width:800px){
-      gap:25px;
-    }
+ 
 }
 `;
 
@@ -34,18 +32,10 @@ function WhyUs() {
       <Content>
         <Card
           key={1}
-          emoji={"❤️"}
-          heading={"Build Faster"}
-          content={
-            "Build Faster and with ease so that you can spend time with your family"
-          }
-        ></Card>
-        <Card
-          key={1}
           emoji={"🌎"}
           heading={"Impact million"}
           content={
-            "Impact million as our servers run on Google cloud which can scale to near infinity "
+            "As our servers run on kubernetes you can scale to near infinity, carefree."
           }
         ></Card>
         <Card
@@ -59,10 +49,57 @@ function WhyUs() {
         <Card
           key={1}
           emoji={"🔎"}
-          heading={"SEO Friendly JS"}
+          heading={"SEO Friendly"}
           content={
-            "While you build the future we make sure people can find that future. When a serch bot comes to us we process your JS and serve it as if it was  a server side page"
+            "While you build the future we make sure people can find that future. When a search bot comes to us we process your JS and serve it as if it was  a server side page"
           }
+        ></Card>
+        <Card
+          key={1}
+          emoji={"🔗"}
+          heading={"Custom Domain "}
+          content0={`(coming soon)
+          `}
+          content={`
+          Add custom domain with autorenewing SSL`}
+        ></Card>
+        <Card
+          key={1}
+          emoji={"💨"}
+          heading={"Git Support "}
+          content0={`(coming soon)`}
+          code={`
+          Anonymus Hosting
+          > npx quick-deploy
+
+          Proper Hosting
+          > npm install upon.one
+          > upon.one deploy
+          `}
+        ></Card>
+        <Card
+          key={1}
+          emoji={"🎨"}
+          heading={"Website Builder"}
+          content={`
+          We provide a free component based website builder. So, that you can build your dream while you are half sleeping
+          `}
+        ></Card>
+        <Card
+          key={1}
+          emoji={"💽"}
+          heading={"Simple Database"}
+          content={`
+            APIs are great way to talk to the server but they don't scale. For every feature you have to add an endpoint & with every new endpoint there is a possiblity of Bugs & Security vulnerablity. With our database you only need to provide rules for read, write and update and with our client library client can access the database directly and securely
+          `}
+        ></Card>
+        <Card
+          key={1}
+          emoji={"😀"}
+          heading={"Easy Auth"}
+          content={`
+            You can login your user, let them change password, let users signup with Google. All of that with just one line of code
+          `}
         ></Card>
       </Content>
     </Div>
