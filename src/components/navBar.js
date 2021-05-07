@@ -14,7 +14,6 @@ let MobileOptions = styled.div`
   cursor: pointer;
   opacity: 0.8;
   justify-content: flex-start;
-  width: 200px;
 `;
 
 let HeadRowButton = styled.button`
@@ -28,16 +27,24 @@ let HeadRowButton = styled.button`
   font-size: 15px;
   border-radius: 5px;
   font-family: roboto;
-  padding: 15px;
+  padding: 10px;
 
   @media (max-width: 800px) {
     display: none;
   }
 `;
 
+let Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  grid-column-gap: 25px;
+  justify-content: flex-end;
+  background-color: transparent;
+`;
+
 let LogoText = styled.h3`
   display: flex;
-  font-size: 35px;
+  font-size: 25px;
   margin: 0px;
   font-weight: 100;
 
@@ -46,11 +53,11 @@ let LogoText = styled.h3`
 `;
 
 let LogoImg = styled.img`
-  height: 20px;
+  height: 13px;
   margin: 0px 10px 0px 30px;
   margin-left: 0;
   display: flex;
-  width: 20px;
+  width: 13px;
   padding: 5px;
   border-radius: 5px;
   border: 1px solid #28fd57;
@@ -81,10 +88,6 @@ function NavBar() {
 
   return (
     <Div>
-      <MobileOptions onClick={moreOptions}>
-        <HiMenu size={"40px"} />{" "}
-      </MobileOptions>
-
       <Link key={1} to="/">
         <LogoContainer>
           <LogoImg src={logo} className="App-logo" alt="logo" />
@@ -92,17 +95,23 @@ function NavBar() {
         </LogoContainer>
       </Link>
 
-      {!loggedIn ? (
-        <Fragment>
-          <HeadRowButton key={3} loggedIn={loggedIn}>
-            <a onClick={U.login}>Register / Login</a>
-          </HeadRowButton>
-        </Fragment>
-      ) : (
-        <Fragment>
-          <UserButton showUserOptions={showUserOptions}></UserButton>
-        </Fragment>
-      )}
+      <Row>
+        {!loggedIn ? (
+          <Fragment>
+            <HeadRowButton key={3} loggedIn={loggedIn}>
+              <a onClick={U.login}>Register / Login</a>
+            </HeadRowButton>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <UserButton showUserOptions={showUserOptions}></UserButton>
+          </Fragment>
+        )}
+
+        <MobileOptions onClick={moreOptions}>
+          <HiMenu size={"30px"} />{" "}
+        </MobileOptions>
+      </Row>
     </Div>
   );
 

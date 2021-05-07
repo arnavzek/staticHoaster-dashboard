@@ -1,6 +1,8 @@
 let overlay = new (class {
   constructor() {
-    this.currentPrompt = {};
+    this.kill = this.kill.bind(this);
+    if (!window.currentOverlayPrompt) window.currentOverlayPrompt = {};
+
     this.loadingSVG = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: transparent; display: block; shape-rendering: auto;" width="100px" height="100px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
     <g transform="rotate(0 50 50)">
       <rect x="32" y="29.5" rx="18" ry="0.5" width="36" height="1" fill="#0a0a0a">
@@ -20,11 +22,17 @@ let overlay = new (class {
     window.addEventListener("popstate", () => {
       this.kill("alert");
       this.kill("form");
-      if (!Object.values(this.currentPrompt).length) window.history.forward();
+      if (!Object.values(window.currentOverlayPrompt).length)
+        window.history.forward();
     });
   }
   kill = (type) => {
-    this.currentPrompt[type].kill();
+    if (!type) {
+      window.currentOverlayPrompt["alert"].kill();
+      window.currentOverlayPrompt["form"].kill();
+      return;
+    }
+    window.currentOverlayPrompt[type].kill();
   };
   loading = (message) => {
     if (!message) message = "Please Wait.";
@@ -287,7 +295,7 @@ let overlay = new (class {
                 cursor: pointer;
                 float: left;
                 border: none;
-                font-size:18px;
+                font-size:14px;
                 display: flex;
                 justify-content: center;
                 margin: 0;
@@ -364,7 +372,7 @@ let overlay = new (class {
                 display: flex;
                 grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
                 border-radius: 10px;
-                grid-gap: 40px;
+                grid-gap: 20px;
                 margin-bottom: 30px;
                 box-sizing: border-box;
                 /* justify-content: space-between; */
@@ -739,10 +747,10 @@ let overlay = new (class {
 
     let domRemover = () => {
       this.removeDom(newPromptTag);
-      delete this.currentPrompt[type];
+      delete window.currentOverlayPrompt[type];
     };
 
-    this.currentPrompt[type] = {
+    window.currentOverlayPrompt[type] = {
       kill: domRemover,
       dom: shadowDom,
     };
@@ -757,10 +765,13 @@ let overlay = new (class {
         if (this.onFormClose)
           killSwitch.addEventListener("click", this.onFormClose);
 
-      killSwitch.addEventListener("click", this.currentPrompt[type].kill);
+      killSwitch.addEventListener(
+        "click",
+        window.currentOverlayPrompt[type].kill
+      );
     });
 
-    return this.currentPrompt[type];
+    return window.currentOverlayPrompt[type];
   };
 })();
 

@@ -13,6 +13,9 @@ let Div = Styled.div`
   gap:100px;
   justify-content:flex-end;
   background:rgba(0,0,0,0.5);
+  @media (max-width:800px){
+    flex-direction:column;
+  }
 `;
 
 let Logo = Styled.div`
@@ -22,8 +25,12 @@ display:flex;
 cursor:pointer;
 gap:15px;
 justify-content:center;
-align-items:center;
+
 flex-direction:row;
+
+@media (max-width:800px){
+  justify-content:flex-start;
+  }
 `;
 let Text = Styled.div`
 `;
@@ -31,12 +38,18 @@ let Text = Styled.div`
 function WhyUs() {
   return (
     <Div>
-      <Social target="_blank" href={"http://discord.com"}>
+      <Social target="_blank" href={"https://discord.gg/s8ZysABauT"}>
         <Logo>
           <FaDiscord size={"30px"}></FaDiscord>
         </Logo>
         <Text>Join our Discord Server</Text>
       </Social>
+    </Div>
+  );
+}
+
+/*
+
       <Social target="_blank" href={"http://twitter.com/upon.one"}>
         <Logo>
           <RiTwitterFill size={"30px"}></RiTwitterFill>
@@ -49,8 +62,7 @@ function WhyUs() {
         </Logo>
         <Text>Instagram</Text>
       </Social>
-    </Div>
-  );
-}
+
+*/
 
 export default WhyUs;

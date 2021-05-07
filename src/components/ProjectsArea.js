@@ -83,14 +83,17 @@ let Content = Styled.div`
   flex-direction:row;
   flex-wrap: wrap;
   display:flex;
-  gap:6.5%;
+
+  grid-column-gap: 6.5%;
+  grid-row-gap: 6.5%;
 
   @media (max-width: 800px) {
     gap: 0%;
     }
   
   @media (max-width: 1500px) {
-      gap: 19%;
+    grid-column-gap: 19%;
+    grid-row-gap: 19%;
     }
 `;
 

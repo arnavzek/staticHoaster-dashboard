@@ -6,34 +6,28 @@ import initializeUploader from "../components/FileUploader";
 import ProjectsArea from "../components/ProjectsArea";
 import WhyUs from "../components/WhyUs";
 import Examples from "../components/Examples";
-let PrimaryButon = styled.button`
-  cursor: pointer;
-  border-radius: 200px;
-  background: linear-gradient(45deg, #ffeb3b, #28fd57);
-  border: none;
-  font-size: 15px;
-  width: 45%;
-
-  text-align: center;
-  padding: 15px 34px;
-  @media (max-width: 800px) {
-    width: 100%;
-  }
-`;
 
 let Button = styled.button`
   cursor: pointer;
-  border-radius: 200px;
+  border-radius: 0;
   background: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   opacity: 0.9;
-  width: 45%;
+  width: 20vw;
   text-align: center;
-  border: 1px solid;
+  border: none;
   color: #28fd57;
+  outline: none;
   font-size: 15px;
-  padding: 15px 34px;
+  padding: 20px 34px;
+  border-right: ${({ primary }) => (primary ? `2px solid #ffffff63` : "")};
   @media (max-width: 800px) {
     width: 100%;
+    border-right: none;
+    border-bottom: ${({ primary }) => (primary ? `2px solid #ffffff63` : "")};
   }
 `;
 
@@ -52,8 +46,14 @@ let Heading = styled.h1`
   opacity: 0.5;
   font-family: Sacramento;
   @media (max-width: 800px) {
-    font-size: 8vw;
+    font-size: 7vw;
   }
+`;
+
+let Underlight = styled.div`
+  opacity: 0.5;
+  margin-left: 10px;
+  font-size: 13px;
 `;
 
 let Options = styled.div`
@@ -65,16 +65,15 @@ let Options = styled.div`
   flex-wrap: wrap;
   background: rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  padding: 40px;
-  gap: 40px;
+  padding: 0;
+  gap: 0;
   border: 2px solid #ffffff63;
-  box-shadow: 0px 20px 20px 20px #111111ba;
+  box-shadow: 0px 20px 20px 20px #11111178;
   border-radius: 25px;
   margin-bottom: 100px;
   @media (min-width: 800px) {
     flex-direction: row;
-
-    width: 28%;
+    width: auto;
   }
 `;
 
@@ -98,14 +97,14 @@ function Dashboadrd() {
     <Body>
       <ReactOverlay data={dialogData} setData={setDialogData}></ReactOverlay>
       <Center>
-        <Heading>platofrm for creating the next big thing</Heading>
+        <Heading>publish static sites easily</Heading>
         <Options>
-          <PrimaryButon onClick={hostingFuntion.homepage} primary="true">
-            Design
-          </PrimaryButon>
-          <Button onClick={hostingFuntion.folder}>Host HTML file</Button>
-          <Button onClick={hostingFuntion.folder}>Host Static Site</Button>
-          <Button onClick={hostingFuntion.folder}>Build Database</Button>
+          <Button onClick={hostingFuntion.homepage} primary={true}>
+            + File <Underlight>( html )</Underlight>
+          </Button>
+          <Button onClick={hostingFuntion.folder}>
+            + Project Folder <Underlight>(having index.html)</Underlight>
+          </Button>
         </Options>
       </Center>
       <WhyUs />

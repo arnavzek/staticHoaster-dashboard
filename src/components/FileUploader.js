@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-
+import Overlay from "../lib/overlay";
 import styled from "styled-components";
 
 let Div = styled.div`
@@ -150,9 +150,12 @@ function initializeUploader({ setDialogData, Upon, type, appName, U }) {
     function doUpload(event) {
       let filesFromSelector = event.target.files;
 
-      if (!appName) return createApp().then(engageUpload);
+      if (!appName) return askUserForAppName().then(engageUpload);
+
       engageUpload(appName);
       function engageUpload(appName) {
+        console.log(appName);
+
         let newU = new Upon({
           name: appName,
           local: U.configuration.local,
@@ -173,14 +176,38 @@ function initializeUploader({ setDialogData, Upon, type, appName, U }) {
       }
     }
 
-    function createApp() {
+    function askUserForAppName() {
+      return new Promise((resolve) => {
+        let elements = [
+          { h3: "Type a project name" },
+          { input: { placeholder: "Project name", name: "appName" } },
+          {
+            button: {
+              innerHTML: "submit",
+              onclick: (event, data) => {
+                Overlay.loading();
+                createApp(data.appName).then((newAppName) => {
+                  Overlay.kill();
+                  resolve(newAppName);
+                });
+              },
+            },
+          },
+        ];
+        Overlay.form(elements);
+      });
+    }
+
+    function createApp(appName) {
       return new Promise((resolve) => {
         U.api
-          .post("app")
+          .post("app", { appName: appName })
           .then((data) => {
             resolve(data.appName);
           })
-          .catch(console.error);
+          .catch((error) => {
+            Overlay.alert(error.message);
+          });
       });
     }
   });

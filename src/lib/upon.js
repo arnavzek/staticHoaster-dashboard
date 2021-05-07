@@ -331,23 +331,23 @@ export class Upon {
     }
     return paramObject[property];
   }
-  upload = async (file, bucketName, originalFileName, attribute = {}) => {
+  upload = async (file, bucketName, fileToReplace, attribute = {}) => {
     let form = new FormData();
 
-    if (originalFileName) form.append("originalFileName", originalFileName); //for replacing
+    if (fileToReplace) form.append("fileToReplace", fileToReplace); //for replacing
     form.append("bucket", bucketName);
 
     for (let key in attribute) {
       form.append(key, attribute[key]);
     }
 
-    //originalFileName is for declaring the file which needs to be replaced
+    //fileToReplace is for declaring the file which needs to be replaced
     //on the server side the file.filename is for finding extension
     //file.filename is set automatically by the browser if we don't overwrite them
     //but when we create blob (in case of hosting upload) it does not happens automatically
-    //if originalFileName is undefined it is automatically extracted from file.filename by multer
+    //if fileToReplace is undefined it is automatically extracted from file.filename by multer
 
-    let nameUsedForExtension = originalFileName ? originalFileName : file.name;
+    let nameUsedForExtension = fileToReplace ? fileToReplace : file.name;
     form.append("file", file, nameUsedForExtension); //if it was appended before the other appends then req.body will not be processed instantly
 
     let endPoint = "/upload";

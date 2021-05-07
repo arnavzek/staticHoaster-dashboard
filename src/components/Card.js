@@ -26,12 +26,20 @@ let Emoji = Styled.div`
 font-size: 50px;
 
 `;
+
+let Image = Styled.img`
+height: 50px;
+width: 50px;
+object-fit:contain;
+`;
+
 let Heading = Styled.div`
-font-size: 25px;
+font-size: 20px;
     font-weight: 700;
 `;
 let Content = Styled.div`
 opacity:0.5;
+font-size: 15px;
 width: 100%;
 text-align:${({ align }) => (align ? align : "center")};
 `;
@@ -48,12 +56,13 @@ opacity:0.5;
 text-decoration:underline;
 
 `;
-function WhyUs({ emoji, heading, link, content0, content, code }) {
+function WhyUs({ emoji, heading, image, link, content0, content, code }) {
   let { U } = useContext(Context);
   if (U.getUserCookie()) return [];
   return (
     <Div>
-      <Emoji>{emoji}</Emoji>
+      {emoji ? <Emoji>{emoji}</Emoji> : []}
+      {image ? <Image src={image} /> : []}
       <Heading>{heading}</Heading>
       {link ? (
         <A target={"_blank"} href={link}>

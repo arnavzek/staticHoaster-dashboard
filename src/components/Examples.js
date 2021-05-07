@@ -11,12 +11,16 @@ let Content = Styled.div`
     flex-direction: row;
     flex-wrap:wrap;
     gap:120px;
+    @media(max-width:800px){
+      gap:50px;
+    }
 `;
 
 let Header = Styled.div`
-    font-size: 40px;
+    font-size: 20px;
     margin-bottom: 50px;
     font-weight: 900;
+    opacity:0.5;
 `;
 function WhyUs() {
   let { U } = useContext(Context);
@@ -36,14 +40,7 @@ function WhyUs() {
         ></Card>
         <Card
           key={1}
-          emoji={"🏈"}
-          heading={"PlayerAll"}
-          link={"https://playerall.upon.one"}
-          content={"Find real people to play outdoor games"}
-        ></Card>
-        <Card
-          key={1}
-          emoji={"🎬"}
+          image={"https://charliewho.upon.one/logo192.png"}
           heading={"Charlie Who"}
           link={"https://charliewho.upon.one"}
           content={"Play online dumb charades, turn strangers to friends"}
