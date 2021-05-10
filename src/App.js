@@ -25,7 +25,7 @@ let MainBody = styled.div`
 `;
 
 //ReactGA.initialize("UA-166276820-1");
-U.settings({ name: "www", local: true });
+U.settings({ name: "www", local: false });
 
 function App() {
   const [state, dispatch] = useReducer(reducer, { loggedIn: false });

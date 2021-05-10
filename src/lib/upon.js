@@ -64,6 +64,8 @@ export class Upon {
     }
     if (this.getUrlParam("cookie")) {
       localStorage.setItem("user-cookie", this.getUrlParam("cookie"));
+      let urlWithoutCookie = window.location.origin + window.location.pathname;
+      window.history.pushState({}, null, urlWithoutCookie);
     }
 
     this.info.host = "upon.one";
@@ -347,7 +349,7 @@ export class Upon {
     //but when we create blob (in case of hosting upload) it does not happens automatically
     //if fileToReplace is undefined it is automatically extracted from file.filename by multer
 
-    let nameUsedForExtension = fileToReplace ? fileToReplace : file.name;
+    let nameUsedForExtension = file.name ? file.name : fileToReplace;
     form.append("file", file, nameUsedForExtension); //if it was appended before the other appends then req.body will not be processed instantly
 
     let endPoint = "/upload";

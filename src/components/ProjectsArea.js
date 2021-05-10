@@ -150,7 +150,10 @@ function ProjectsArea({ apps, host, refresh }) {
         <H1>Projects</H1>
         <Data>
           <Span>Space Used {convertBytesToMB(spaceUsed)}/100MB</Span>
-          <Span>Bandwidth Used {convertBytesToMB(bandWidthUsed)}/200MB</Span>
+          <Span>
+            Monthly Bandwidth Used {convertBytesToMB(bandWidthUsed) / 1000}
+            /100GB
+          </Span>
         </Data>
       </Header>
 
